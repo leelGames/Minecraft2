@@ -1,3 +1,4 @@
-# Minecraft2
+# Minecraft2 (AT)
 
-Jo 
+Willokommen auf der offiziellen GitHub-Seite des "Minecraft 2" Projekts.
+Beschreibung folgt.
