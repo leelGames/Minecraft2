@@ -12,6 +12,7 @@ public class VoxelRenderer {
 	readonly List<int> terrainTris;
 	readonly List<int> transparentTris;
 	readonly List<int> uvTris;
+	readonly List<int> waterTris;
 	readonly List<Vector3> solidverts;
 	readonly List<int> solidTris;
 	readonly List<Vector2> uvs;
@@ -27,6 +28,7 @@ public class VoxelRenderer {
 		terrainTris = new();
 		transparentTris = new();
 		uvTris = new();
+		waterTris = new();
 		solidverts = new();
 		solidTris = new();
 		uvs2 = new();
@@ -58,23 +60,24 @@ public class VoxelRenderer {
 
 	public void DrawMesh(UpdateEvent e) {
 		if (e.lod == 0) {
-			chunk.meshRenderer.materials = new Material[] { Main.materials[0], Main.materials[1], Main.materials[2] };
+			chunk.meshRenderer.materials = new Material[] { Main.materials[0], Main.materials[1], Main.materials[2], Main.materials[3] };
 			mesh = new();
-			if (vertCount > 65535) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; //Fix für verbugtes Custom 
+			if (vertCount > 65535) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; //Fix fÃ¼r verbugtes Custom 
 			mesh.vertices = vertices.ToArray();
-			mesh.subMeshCount = 3;
+			mesh.subMeshCount = 4;
 			mesh.SetTriangles(terrainTris.ToArray(), 0);
 			mesh.SetTriangles(transparentTris.ToArray(), 1);
 			mesh.SetTriangles(uvTris.ToArray(), 2);
+			mesh.SetTriangles(waterTris.ToArray(), 3);
 			mesh.uv = uvs.ToArray();
 			mesh.uv2 = uvs2.ToArray();
 			mesh.RecalculateNormals();
 			chunk.meshFilter.mesh = mesh;
 		}
 		else {
-			chunk.meshRenderer.materials = new Material[] { Main.materials[3], Main.materials[4]};
+			chunk.meshRenderer.materials = new Material[] { Main.materials[4], Main.materials[5]};
 			lodmesh = new();
-			if (vertCount > 65535) lodmesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; //Fix für verbugtes Custom 
+			if (vertCount > 65535) lodmesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; //Fix fÃ¼r verbugtes Custom 
 			lodmesh.vertices = vertices.ToArray();
 			lodmesh.uv = uvs.ToArray();
 			lodmesh.subMeshCount = 2;
@@ -87,7 +90,7 @@ public class VoxelRenderer {
 		}
 		if (e.collider) {
 			collider = new();
-			if (solidvertCount > 65535) collider.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; //Fix für verbugtes Custom 
+			if (solidvertCount > 65535) collider.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; //Fix fÃ¼r verbugtes Custom 
 			collider.vertices = solidverts.ToArray();
 			collider.triangles = solidTris.ToArray();
 			chunk.meshCollider.sharedMesh = collider;
@@ -98,6 +101,7 @@ public class VoxelRenderer {
 		uvTris.Clear();
 		solidverts.Clear();
 		solidTris.Clear();
+		waterTris.Clear();
 		uvs.Clear();
 		uvs2.Clear();
 		vertCount = 0;
@@ -129,6 +133,7 @@ public class VoxelRenderer {
 			if (block.shaderType == SMode.Triplanar) terrainTris.Add(value);
 			else if (block.shaderType == SMode.UVCutoff) uvTris.Add(value);
 			else if (block.shaderType == SMode.UVAlpha) transparentTris.Add(value);
+			else if (block.shaderType == SMode.Water) waterTris.Add(value);
 		} else {
 			if (block.shaderType == SMode.UVAlpha) transparentTris.Add(value);
 			else terrainTris.Add(value);
@@ -136,7 +141,6 @@ public class VoxelRenderer {
 
 		if (e.collider && block.isSolid) {
 			solidTris.Add(tri + solidvertCount - offset);
-			
 		}
 	}
 
@@ -144,12 +148,12 @@ public class VoxelRenderer {
 		Block thisBlock = chunk.GetVoxel(pos);
 		int thisAtr = chunk.GetVoxelAtr(pos);
 
-		//Fügt gespeicherte Ecken und Dreiecke hinzu
+		//FÃ¼gt gespeicherte Ecken und Dreiecke hinzu
 		int meshIndex = 0;
 		if (thisBlock.connectMode != CMode.None) {
 
 			if (thisBlock.connectMode == CMode.Grid) {
-				//ermittelt id anhand benachbarter grid Blöcke
+				//ermittelt id anhand benachbarter grid BlÃ¶cke
 				for (int i = 0; i < 6; i++) {
 					if (chunk.CheckBlock(pos + VD.dirs[i]).id == thisBlock.id) {
 						meshIndex |= 1 << i;
@@ -157,7 +161,7 @@ public class VoxelRenderer {
 				}
 				if (meshIndex == 0b111111) return 0;
 			} else if (thisBlock.connectMode == CMode.Pipe) {
-				//ermittelt id anhand benachbarter pipe Blöcke und richtung
+				//ermittelt id anhand benachbarter pipe BlÃ¶cke und richtung
 				thisAtr /= 8;
 				for (int i = 0; i < 6; i++) {
 					if (chunk.CheckBlock(pos + VD.dirs[i]).id == thisBlock.id && (thisAtr == i / 2 || chunk.CheckBlockAtr(pos + VD.dirs[i]) / 8 == i / 2)) {
@@ -172,6 +176,14 @@ public class VoxelRenderer {
 					}
 				}
 			}
+		 	else if (thisBlock.connectMode == CMode.Vertical) {
+				for (int i = 0; i < 4; i++) {
+					if (chunk.CheckBlock(pos + VD.dirs[i]).id == thisBlock.id) {
+						meshIndex |= 1 << i;
+					}
+				}
+				if (meshIndex == 15) return 0;
+			}
 		}
 		return meshIndex;
 	}
@@ -181,7 +193,7 @@ public class VoxelRenderer {
 		int thisAtr = chunk.GetVoxelAtr(pos);
 		Bounds b = chunk.GetBounds(pos);
 
-		//umschlossene Blocke werden nicht geupdated
+		//umschlossene BlÃ¶cke werden nicht geupdated
 		int check = 0;
 		for (int i = 0; i < 6; i++) {
 			if (chunk.CheckBlock(pos + VD.dirs[i]).type < BType.Terrain) check++;
@@ -204,7 +216,7 @@ public class VoxelRenderer {
 		//vertCount += Main.meshTable[thisBlock.meshID][meshIndex].vertices.Length;
 	}
 
-	//Ermittelt genau, ob Voxelfaces gerendert werden müssen
+	//Ermittelt genau, ob Voxelfaces gerendert werden mÃ¼ssen
 	public static bool DrawVoxelFace(Bounds thisBounds, Bounds nextBounds, int dir) {
 		return dir switch {
 			0 => (thisBounds.min.y != 0f) || (thisBounds.min.x < nextBounds.min.x || thisBounds.min.z < nextBounds.min.z || thisBounds.max.x > nextBounds.max.x || thisBounds.max.z > nextBounds.max.z),
@@ -230,13 +242,13 @@ public class VoxelRenderer {
 		Bounds b = chunk.GetBounds(pos);
 		if (!thisBlock.mode) {
 			for (int i = 0; i < 6; i++) {
-				//prüft ob Fläche sichtbar ist				
+				//prÃ¼ft ob FlÃ¤che sichtbar ist				
 				if (chunk.CheckBlock(pos + VD.dirs[i]).type != BType.Voxel || DrawVoxelFace(b, chunk.CheckBounds(pos + VD.dirs[i]), i)) { 
-					//definert Ecken der Fläche
+					//definert Ecken der FlÃ¤che
 					for (int j = 0; j < 4; j++) {
 						AddVert(pos + b.min + Vector3.Scale(VD.voxelVerts[VD.voxelTris[i, j]], b.size), VD.voxelUvs[j], e, thisBlock);
 					}
-					//Definert 2 Dreiecke für quadratische Fläche
+					//Definert 2 Dreiecke fÃ¼r quadratische FlÃ¤che
 					for (int k = 0; k < 6; k++) {
 						AddTri(VD.vertexTris[k], 4, e, thisBlock);
 					}
@@ -250,7 +262,7 @@ public class VoxelRenderer {
 			if (thisBlock.slabType != 0) dir = thisAtr.data[1] / 2;
 			else dir = thisAtr.mainAtr / 2;
 
-			//Fügt gespeicherte Ecken und Dreiecke hinzu
+			//FÃ¼gt gespeicherte Ecken und Dreiecke hinzu
 			for (int i = 0; i < VD.slopeTris.Length; i++) {
 				AddVert(pos + b.min + Vector3.Scale(VD.voxelVerts[VD.vertRots[dir, VD.slopeTris[i]]], b.size), VD.voxelUvs[VD.slopeUVs[i]], e, thisBlock);
 				AddTri(0, 1, e, thisBlock);
@@ -262,7 +274,7 @@ public class VoxelRenderer {
 		Block thisBlock = chunk.GetVoxel(pos);
 		int thisAtr = chunk.GetVoxelAtr(pos);
 		//Connect?
-		//Fügt gespeicherte Ecken und Dreiecke hinzu
+		//Fï¿½gt gespeicherte Ecken und Dreiecke hinzu
 		int meshId = thisBlock.meshID;
 
 		for (int i = 0; i < Main.meshTable[meshId][0].vertices.Length; i++) {
@@ -280,12 +292,12 @@ public class VoxelRenderer {
 		byte marchIndex = 0;
 
 		for (int i = 0; i < 26; i++) {
-			//Prüft welcher benachbarte Block leer ist um ID in der Tabelle zu ermitteln
+			//Prï¿½ft welcher benachbarte Block leer ist um ID in der Tabelle zu ermitteln
 			check = chunk.CheckBlock(pos + VD.dirs[i]);
 			if (check.type != BType.Terrain) { // || (check.type == 3 && check.variant == 0))) { // || (VD.tCheck[i].y == -1 && CheckBlock(pos + VD.tCheck[i]).type != 2)) {
 				marchIndex |= VD.tBytes[i];
 			}
-			//Ein schwebender Block wird gelöscht
+			//Ein schwebender Block wird gelï¿½scht
 			if (marchIndex == 255) {
 				if (!chunk.Active && pos.y < 40) chunk.SetVoxel(pos, 25, 12);
 				else chunk.SetVoxel(pos, 0);
@@ -326,7 +338,7 @@ public class VoxelRenderer {
 				newpos = pos + VD.dirs[k];
 				marchIndex = 0;
 				for (int i = 0; i < 26; i++) {
-					//Prüft welcher benachbarte Block leer ist um ID in der Tabelle zu ermitteln
+					//Prï¿½ft welcher benachbarte Block leer ist um ID in der Tabelle zu ermitteln
 					check = chunk.CheckBlock(newpos + VD.dirs[i]);
 					if (check.type == BType.Rounded) {
 						marchIndex |= VD.tBytes[i];
@@ -357,12 +369,12 @@ public class VoxelRenderer {
 		int height;
 
 		for (int i = 0; i < 6; i++) {
-			//definert Ecken der Fläche							//waterlogging imp0lementieren
+			//definert Ecken der Flï¿½che							//waterlogging imp0lementieren
 			if (chunk.CheckBlock(pos + VD.dirs[i]).type == BType.Air) { // || i == 1 && CheckBlock(pos + VD.faceChecks[i]).type != 7) {
 				for (int j = 0; j < 4; j++) {
 					Vector3 vert = VD.voxelVerts[VD.voxelTris[i, j]];
 
-					//Höhe
+					//Hï¿½he
 					if (vert.y != 0) {
 						height = chunk.GetVoxelAtr(pos);
 						if (thisBlock.mode) vert -= new Vector3(0, 1 - (height / 16f), 0f);
@@ -379,7 +391,7 @@ public class VoxelRenderer {
 						}
 					}
 
-					//Mesh füllt benachbarte Blöcke aus
+					//Mesh fï¿½llt benachbarte Blï¿½cke aus
 					for (int k = 2; k < 6; k++) {
 						if (chunk.CheckBlock(pos + VD.dirs[k] * -1).type > BType.Liquid) {
 							vert += VD.voxelFaces[k, VD.voxelTris[i, j]] * (Vector3)VD.dirs[k];
@@ -388,7 +400,7 @@ public class VoxelRenderer {
 					AddVert(pos + vert, Vector2.zero, e, thisBlock);
 				}
 
-				//Definert 2 Dreiecke für quadratische Fläche
+				//Definert 2 Dreiecke fï¿½r quadratische Flï¿½che
 				for (int k = 0; k < 6; k++) {
 					AddTri(VD.vertexTris[k], 4, e, thisBlock);
 				}
@@ -403,14 +415,14 @@ public class VoxelRenderer {
 		Block nextBlock;
 
 		for (int i = 0; i < 6; i++) {
-			//prüft ob Fläche sichtbar ist			
+			//prï¿½ft ob Flï¿½che sichtbar ist			
 			nextBlock = chunk.CheckBlock(pos + VD.dirs[i]);
 			if (nextBlock.type < BType.Terrain && thisBlock.type != BType.Liquid || nextBlock.type == BType.Air) {
-				//definert Ecken der Fläche
+				//definert Ecken der Flï¿½che
 				for (int j = 0; j < 4; j++) {
 					AddVert(pos + b.min + Vector3.Scale(VD.voxelVerts[VD.voxelTris[i, j]], b.size), VD.voxelUvs[j], e, thisBlock);
 				}
-				//Definert 2 Dreiecke für quadratische Fläche
+				//Definert 2 Dreiecke fï¿½r quadratische Flï¿½che
 				for (int k = 0; k < 6; k++) {
 					AddTri(VD.vertexTris[k], 4, e, thisBlock);
 				}
@@ -418,7 +430,7 @@ public class VoxelRenderer {
 		}
 	}
 
-	//Für implementierung von rotierung
+	//Fï¿½r implementierung von rotierung
 	public static Vector3 RotateVert(Vector3 vert, int dir) {
 		Vector3 center = new(0.5f, 0.5f, 0.5f);
 		return Quaternion.Euler(VD.dirToRot2[dir]) * (vert - center) + center;
