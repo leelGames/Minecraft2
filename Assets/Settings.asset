@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ffc6b11cb5a3754dad9e3eeba4773d6, type: 3}
+  m_Name: Settings
+  m_EditorClassIdentifier: 
+  saveToFile: 1
+  useFile: 0
+  materials:
+  - {fileID: 2100000, guid: b360882338460cf42ac9cdbbd209a12c, type: 2}
+  - {fileID: 2100000, guid: dba33a2bf8b23400bacf323fc2816a51, type: 2}
+  - {fileID: 2100000, guid: 5316cdd86be9ae14485c8589cc3f3e4c, type: 2}
+  - {fileID: 2100000, guid: 0357725a20b14244a8385fcacdc9104e, type: 2}
+  - {fileID: 2100000, guid: f4f6408978d16254096f258e8f510e24, type: 2}
+  - {fileID: 2100000, guid: fdf9ab8e12c70ee48a801c805f44a1e3, type: 2}
+  colorMap: {fileID: 2800000, guid: 544749cc3ccc5ec478d1a019633d53d2, type: 2}
+  renderDistance: 12
+  closeLods: 0
+  farLods: 1
+  lodrenderDistance: 12
+  fog: 1
+  fogColor: {r: 0.7568628, g: 0.86666673, b: 0.9215687, a: 0}
+  fogstart: -1
+  fogend: 1
+  seed: 0
+  voxelentities: 1
