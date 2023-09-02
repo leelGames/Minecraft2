@@ -169,20 +169,19 @@ public class VoxelRenderer {
 					}
 				}
 				meshIndex += thisAtr * 64;
-			} else if (thisBlock.connectMode == CMode.Horizontal) {
+			} else {
+				int offset;
+				Vector3Int next;
+				if (thisBlock.connectMode == CMode.Horizontal) offset = 2;
+				else offset = 0; //Vertical
+				
 				for (int i = 0; i < 4; i++) {
-					if (chunk.CheckBlock(pos + VD.dirs[i + 2]).id == thisBlock.id) {
+					next = pos + Vector3Int.RoundToInt(Quaternion.Euler(VD.dirToRot2[thisAtr]) * ((Vector3)VD.dirs[i + offset]));
+					if (chunk.CheckBlock(next).id == thisBlock.id && chunk.CheckBlockAtr(next) == thisAtr) {
 						meshIndex |= 1 << i;
 					}
 				}
-			}
-		 	else if (thisBlock.connectMode == CMode.Vertical) {
-				for (int i = 0; i < 4; i++) {
-					if (chunk.CheckBlock(pos + VD.dirs[i]).id == thisBlock.id) {
-						meshIndex |= 1 << i;
-					}
-				}
-				if (meshIndex == 15) return 0;
+				//if (meshIndex == 15) return 0;
 			}
 		}
 		return meshIndex;
@@ -196,12 +195,12 @@ public class VoxelRenderer {
 		//umschlossene Blöcke werden nicht geupdated
 		int check = 0;
 		for (int i = 0; i < 6; i++) {
-			if (chunk.CheckBlock(pos + VD.dirs[i]).type < BType.Terrain) check++;
+			if (chunk.CheckBlock(pos + VD.dirs[i]).isTransparent) check++;
 		}
 		if (check == 0) return;
 		int meshIndex = GetMeshIndex(pos);
 
-		if (thisBlock.connectMode != CMode.None || thisBlock.rotMode == RMode.None) {
+		if (thisBlock.rotMode == RMode.None) {
 			for (int i = 0; i < Main.meshTable[thisBlock.meshID][meshIndex].vertices.Length; i++) {
 				AddVert(Main.meshTable[thisBlock.meshID][meshIndex].vertices[i] + pos, Main.meshTable[thisBlock.meshID][meshIndex].uv[i], e, thisBlock);
 			}

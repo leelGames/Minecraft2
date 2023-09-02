@@ -47,17 +47,18 @@ public static class BD {
         Block.NewCustom("Roof", 13, 11, CMode.Horizontal, RMode.None, SMode.UVCutoff, true, false, new string[] {"Direction4"}),
         Block.NewGrid("Framing", 5, 13),
 	   // Block.NewCustomSlab("Doorframe", 4, 7, 2, RMode.YAxis, SMode.UVCutoff, true, false, new string[] {"CustomslabID"}),
-        Block.NewCustom("Door", 5, 8, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[] {"CustomslabID"}),
-        Block.NewCustom("Windowframe", 4, 9, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[] { "CustomslabID" }),
-        Block.NewCustom("Window", 11, 10, CMode.Vertical, RMode.YAxis, SMode.UVAlpha, true, true, new string[] {"CustomslabID"}),//30
-        Block.NewCustom("Table", 5, 6, CMode.Horizontal, RMode.None, SMode.UVCutoff, true, false, new string[] {}),
+        Block.NewCustom("Door", 5, 8, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[] {"Direction4"}),
+        Block.NewCustom("Windowframe", 4, 9, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[] { "Direction4" }),
+        Block.NewCustom("Window", 11, 10, CMode.Vertical, RMode.YAxis, SMode.UVAlpha, true, true, new string[] {"Direction4"}),//30
+        Block.NewCustom("Table", 5, 6, CMode.Horizontal, RMode.AllAxis6, SMode.UVCutoff, true, false, new string[] {"Rotation"}),
         Block.NewCustom("Chair", 5, 5, CMode.None, RMode.YAxis, SMode.UVCutoff, true, false, new string[] {"Direction4"}),
         Block.NewBlock("Glass", 11, SMode.UVAlpha, true, 0),
         Block.NewRounded("Rock", 10),
 		Block.NewPipe("Tree Branch", 4, 1),
 		Block.NewCustom("Fence", 4, 12, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[] { "CustomslabID" }),
 
-		
+		//TODO custom rotierung integrieren (RMode nur für platzierung)
+		//Customslabs integrieren
     };	
 
 	//Gibt an wie viele Meshs ein block annehmen kann (im Meshtable)
