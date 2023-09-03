@@ -18,7 +18,7 @@ entsprechen.
 Blöcke verbinden sich (Marching Cubes) und werden abgerundet, Texturen
 verbinden sich möglichst.
 
-# Blöcke
+## Blocktypen
 
 Block: Simpler Würfelförmiger Minecraft Block
 
@@ -52,7 +52,7 @@ Höhe ca. 2000 Blöcke -> wie Terraria
 
 Komplexe Dörfer und Strukturen mit Gegner und Loot
 
-# Features
+## Features
 
 1 Block entspricht 2/3 Meter für bessere Proportionen -> wie in
 Terraria
@@ -167,8 +167,6 @@ Höhe:
 
 -   4: Hochgebirge/ Extremes Gebirge
 
-
-
 Art:
 
 -   Wiese
@@ -215,7 +213,7 @@ Strukturen:
 
 -   1block: Strauch, Gras, Stein, Stock, Baumstumpf
 
-# Blöcke
+## Blöcke
 (Ausschnitt)
 
 Terrain:
@@ -330,7 +328,7 @@ Liquid:
 
 -   Erdöl
 
-# Items
+## Items
 
 -   Alle Items Levelbar -> Metalllvl
 
@@ -465,6 +463,7 @@ Content-Creator können vergütet, Server finanziert werden
 pre-alpha 0.01:     Marching Cubes Terrain
 
 04 2022 
+
 pre-alpha 0.02:     Shader nach Tutorial
 
 pre-alpha 0.03:     Blocktypen Terrain, Block und Custom
@@ -478,19 +477,22 @@ pre-alpha 0.10:     Threaded Chunkloading
 (Zweites Semester)
 
 05 2022 
-                    Tests mit URP und UV-Mapping (failed)
+
+Tests mit URP und UV-Mapping (failed)
 
 pre-alpha 0.11:     Highlight Verbesserungen und Optimierungen
 
 08 2022 
+
 pre-alpha 0.12:     Generierung von Biomen
 
 pre-alpha 0.13:     Half- und Thirdslabs, dynamisches Highlight
 
 09 2022 
+
 pre-alpha 0.14:     Subchunks und weitere Optimierungen
 
-                    Weitere Tests mit UV-Mapping und PBR (Sieht nicht gut aus)
+Weitere Tests mit UV-Mapping und PBR (Sieht nicht gut aus)
 
 pre-alpha 0.15     Transparenzshader und Qualitätsverbesserungen
 
@@ -501,39 +503,53 @@ pre-alpha 0.17:     Slope Implementierung
 pre-alpha 0.18:     Rotierbare Customs und Refractoring
 
 10 2022 
+
 pre-alpha 0.20:     Upgrade auf URP, Verwendung von Shadergraph, Post-processing
 
 (Drittes Semester)
+
 11 2022 
+
 pre-alpha 0.21:     BlockEvents, Wasserphysik, Chunkloading Optimierung
 
-                    Experimente mit Umbau der Engine für Farchunks, VoxelEnitys
+Experimente mit Umbau der Engine für Farchunks, VoxelEnitys
 
 12 2022 
+
 pre-alpha 0.22:     VoxelEntitys, Rounded als invertiertes Terrain
 
 01 2023 
+
 pre-alpha 0.23:     Neuimplementierung des Highlights, Hitboxen, Slope-slabs
 
 02 2023 
+
 pre-alpha 0.24:     Umbau der Engine, Thinpipe, rekursive Bäume
 
 03 2023 
+
 pre-alpha 0.30:     Distant LODs, LOD-Chunks, subchunks temorär entfernen
 
 pre-alpha 0.31:     VoxelEntity Verbesserungen, unendliche Welt
 
-                    Erstellung eines Textureditors
+Erstellung eines Textureditors
 
 (Viertes Semester)
-04 2023             Fertigstellen des Textureditors, erste Texturen erstellen
 
-05 2023             
+04 2023             
+
+Fertigstellen des Textureditors, erste Texturen erstellen
+
+05 2023 
+
 pre-alpha 0.32:     Verwendung der neuen Texturen, PBR, Cleanes Projekt, zurück zu BuiltinRP
-09 2023             Git Repository verwenden
-                    neue Connect-Blöcke
 
-# Bugs
+09 2023 
+
+Git Repository verwenden
+neue Connect-Blöcke
+
+## Bugs
 
 VoxelEntitys drehen falsch
 
@@ -549,7 +565,7 @@ Mesh Verbesserungen: Wasser, Terrain auf block
 
 Slabs sin wieder komisch
 
-# ToDo:
+## ToDo:
 
 Pre-alpha:
 
