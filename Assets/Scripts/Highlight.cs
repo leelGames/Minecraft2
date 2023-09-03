@@ -60,7 +60,7 @@ public class Highlight : MonoBehaviour {
             terrainPlacePos = Vector3Int.FloorToInt(lastPos + new Vector3(0.5f, 0, 0.5f));
             face.SetActive(true);
 
-            //highlight für slabs berechenen (richtung und position berechnen)
+            //highlight fÃ¼r slabs berechnen (richtung und position berechnen)
             Block block = world.GetVoxel(breakPos);
             int slabtype = 0;
             bslab = 0;
@@ -74,13 +74,13 @@ public class Highlight : MonoBehaviour {
             }
             slabtype = 0;
             
-            if (selected.type == BType.CustomSlab) slabtype = selected.slabType;
-            if (block.type == BType.CustomSlab) slabtype = block.slabType;
+            if (selected.type == BType.Custom && selected.slabType != 0) slabtype = selected.slabType;
+            if (block.type == BType.Custom && block.slabType != 0) slabtype = block.slabType;
             if (slabtype != 0) {
                 bslab = (int)((dir2 == 1 ? pos.x : pos.z) * 3) % 3;
                 pslab = (int)((dir2 == 1 ? lastPos.x : lastPos.z) * 3) % 3;
             }
-            //Korrektur für Terrain
+            //Korrektur fÃ¼r Terrain
             if (selected.type == BType.Terrain || block.type == BType.Terrain && tcorrection) {
                 transform.position = Vector3Int.FloorToInt(pos - new Vector3(0.5f, 0f, 0.5f)) + new Vector3(1f, 0.5f, 1f);
             } else { transform.position = bounds.center; }
@@ -106,23 +106,25 @@ public class Highlight : MonoBehaviour {
         }
 		else if (pos.block.type == BType.Voxel && pos.block.slabType != 0) {
             //Halfslabs
-			if (!pos.block.mode && pos.block.slabType == 1) {
+			if (pos.block.slabType == 1) {
 			    int slab = VD.halfSlabCombiner[bslab + 2, 1 + VD.slabDataToID[pos.mainAtr]];
 			    if (slab == -1) world.SetVoxel(breakPos, 0);
 			    else world.SetVoxel(breakPos, pos.block.id, (1 + 3 * dir3 + slab));
 		    }
-			else if (pos.block.mode && pos.block.slabType == 1) {
-				int slab = VD.halfSlabCombiner[bslab + 2, 1 + VD.slabDataToID[pos.data[0]]];
-				if (slab == -1) world.SetVoxel(breakPos, 0);
-				else world.SetVoxel(breakPos, pos.block.id, new byte[] { (byte)(1 + 3 * dir3 + slab), pos.data[1] });
-			}
 			//Thirdslabs
-			else if (!pos.block.mode && pos.block.slabType == 2) {
+			else if (pos.block.slabType == 2) {
 			    int slab = VD.thirdSlabCombiner[bslab + 3, 1 + VD.slabDataToID[pos.mainAtr]];
 			    if (slab == -1) world.SetVoxel(breakPos, 0);
 			    else world.SetVoxel(breakPos, pos.block.id, (10 + 6 * dir3 + slab));
             } 
-            else if (pos.block.mode && pos.block.slabType == 2) {
+        }
+        else if (pos.block.type == BType.Slope && pos.block.slabType != 0) {
+            if (pos.block.slabType == 1) {
+				int slab = VD.halfSlabCombiner[bslab + 2, 1 + VD.slabDataToID[pos.data[0]]];
+				if (slab == -1) world.SetVoxel(breakPos, 0);
+				else world.SetVoxel(breakPos, pos.block.id, new byte[] { (byte)(1 + 3 * dir3 + slab), pos.data[1] });
+            } 
+            else if (pos.block.slabType == 2) {
 				int slab = VD.thirdSlabCombiner[bslab + 3, 1 + VD.slabDataToID[pos.data[0]]];
 				if (slab == -1) world.SetVoxel(breakPos, 0);
 				else world.SetVoxel(breakPos, pos.block.id, new byte[] { (byte)(10 + 6 * dir3 + slab), pos.data[1] });
@@ -154,27 +156,34 @@ public class Highlight : MonoBehaviour {
 
             pos = world.GetVoxelData(slabPlacePos);
             //Halfslabs
-            if (!selected.mode && selected.slabType == 1 && ((!pos.block.mode && pos.block.slabType == 1) || pos.block.type == BType.Air)) {
+            if (selected.slabType == 1 && ((pos.block.slabType == 1) || pos.block.type == BType.Air)) {
                 int slab = VD.halfSlabCombiner[pslab, 1 + VD.slabDataToID[pos.mainAtr]];
                 if (slab == -1) return;
-                world.SetVoxel(slabPlacePos, player.selected, (1 + 3 * dir3 + slab));
-            } else if (selected.mode && selected.slabType == 1 && ((pos.block.mode && pos.block.slabType == 1) || pos.block.type == BType.Air)) {
+                world.SetVoxel(slabPlacePos, player.selected, 1 + 3 * dir3 + slab);
+            }
+            //Thirdslabs
+            else if (selected.slabType == 2 && ((pos.block.slabType == 2) || pos.block.type == BType.Air)) {
+                int slab = VD.thirdSlabCombiner[pslab, 1 + VD.slabDataToID[pos.mainAtr]];
+                if (slab == -1) return;
+                world.SetVoxel(slabPlacePos, player.selected, 10 + 6 * dir3 + slab);
+            } 
+        } 
+        else if (selected.type == BType.Slope && selected.slabType != 0 && (pos.block.type == BType.Air || pos.block.type == BType.Slope)) {
+            pos = world.GetVoxelData(slabPlacePos);
+            if (selected.slabType == 1 && ((pos.block.slabType == 1) || pos.block.type == BType.Air)) {
                 int slab = VD.halfSlabCombiner[pslab, 1 + VD.slabDataToID[pos.data.Length == 2 ? pos.data[0] : 0]];
                 if (slab == -1) return;
                 world.SetVoxel(slabPlacePos, player.selected, new byte[] { (byte)(1 + 3 * dir3 + slab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
             }
-            //Thirdslabs
-            else if (!selected.mode && selected.slabType == 2 && ((!pos.block.mode && pos.block.slabType == 2) || pos.block.type == BType.Air)) {
-                int slab = VD.thirdSlabCombiner[pslab, 1 + VD.slabDataToID[pos.mainAtr]];
-                if (slab == -1) return;
-                world.SetVoxel(slabPlacePos, player.selected, (10 + 6 * dir3 + slab));
-            } else if (selected.mode && selected.slabType == 2 && ((pos.block.mode && pos.block.slabType == 2) || pos.block.type == BType.Air)) {
+            else if (selected.slabType == 2 && ((pos.block.slabType == 2) || pos.block.type == BType.Air)) {
                 int slab = VD.thirdSlabCombiner[pslab, 1 + VD.slabDataToID[pos.data.Length == 2 ? pos.data[0] : 0]];
                 if (slab == -1) return;
                 world.SetVoxel(slabPlacePos, player.selected, new byte[] { (byte)(10 + 6 * dir3 + slab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
-            } else { Debug.Log("wron slab"); }
-        } else if (selected.type == BType.Liquid) world.SetVoxel(blockPlacePos, player.selected, 12);
-        else if (selected.type == BType.CustomSlab) world.SetVoxel(slabPlacePos, player.selected, 3 * player.dir4 + (player.dir4 == 0 || player.dir4 == 2 ? pslab : 2 - pslab));
+            } 
+            else { Debug.Log("wron slab"); }
+        }
+        else if (selected.type == BType.Liquid) world.SetVoxel(blockPlacePos, player.selected, 12);
+        else if (selected.type == BType.Custom && selected.slabType != 0) world.SetVoxel(slabPlacePos, player.selected, 3 * player.dir4 + (player.dir4 == 0 || player.dir4 == 2 ? pslab : 2 - pslab));
         else if (selected.rotMode == RMode.Slope) world.SetVoxel(blockPlacePos, player.selected, dir12 * 2);
         else if (selected.rotMode == RMode.AllAxis6) world.SetVoxel(blockPlacePos, player.selected, player.dir6 * 4);
         else if (selected.rotMode == RMode.YAxis) world.SetVoxel(blockPlacePos, player.selected, player.dir4);

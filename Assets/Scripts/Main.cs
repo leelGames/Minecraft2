@@ -70,6 +70,12 @@ public static class Main {
     static Vector3 Round(Vector3 v) {
         return ((Vector3) Vector3Int.RoundToInt(v * 100f)) / 100f;
     }
+    public static string[] Concat(string[] x, string[] y) {
+		string[] z = new string[x.Length + y.Length];
+		x.CopyTo(z, 0);
+		y.CopyTo(z, x.Length);
+		return z;
+	} 
 }
 
 public struct Mesh2 {
@@ -86,6 +92,4 @@ public struct Mesh2 {
         //this.bounds = mesh.bounds;
         bounds = b;
     }
-
-    
 }

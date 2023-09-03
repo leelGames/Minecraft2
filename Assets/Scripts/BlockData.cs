@@ -1,19 +1,17 @@
 using UnityEngine;
+using System;
 
-public enum BType { Air, Liquid, Terrain, Rounded, Custom, Voxel, CustomSlab }
-public enum CMode { None, Horizontal, Vertical, Grid, Pipe }
+public enum BType { Air, Liquid, Terrain, Rounded, Custom, Voxel, Slope }
+public enum CMode { None, Horizontal, Vertical, Grid, Pipe, Random }
 public enum RMode { None, AllAxis3, YAxis, AllAxis6, Slope }
 public enum SMode { UV, UVCutoff, UVAlpha, Triplanar, Water }
 public enum VECMode { All, Self, SameBlock, SameType, SameCMode, }//VoxelEntityConnectmode
-
-
-	
 
 public static class BD {
 
 	//Liste aller Bl�cke
 	public static Block[] blocks = new Block[] {
-        new Block("Air", 0, 0, 0, 0, false, BType.Air, CMode.None, RMode.None, SMode.Triplanar, false, true, new string[0]),
+        new Block("Air", 0, 0, 0, 0, BType.Air, CMode.None, RMode.None, SMode.Triplanar, false, true, new string[0]),
 		Block.NewTerrain("Stone", 0),
         Block.NewTerrain("Dirt", 1),
         Block.NewTerrain("Grass", 2),
@@ -40,25 +38,26 @@ public static class BD {
         Block.NewSlope("Brick Slope Third Slab", 7, false, 2),//20
         
         Block.NewPipe("Cactus", 14, 1),
-        Block.NewCustom("Leaves", 9, 3, CMode.None, RMode.None, SMode.UVCutoff, false, true, new string[] {"TreeID"}),
-        Block.NewCustom("Grass", 15, 4, CMode.None, RMode.None, SMode.UVCutoff, false, true, new string[0]),
+        Block.NewCustom("Leaves", 9, 3, CMode.Random, SMode.UVCutoff, false, true, new string[] {"TreeID"}),
+        Block.NewCustom("Grass", 15, 4, CMode.Random, SMode.UVCutoff, false, true, new string[0]),
         new DynamicWater(4, 16, 4),
         new StaticWater(24),//25
-        Block.NewCustom("Roof", 13, 11, CMode.Horizontal, RMode.None, SMode.UVCutoff, true, false, new string[] {"Direction4"}),
+        Block.NewCustom("Roof", 13, 11, CMode.Horizontal, SMode.UVCutoff, true, false, new string[0] ),
         Block.NewGrid("Framing", 5, 13),
 	   // Block.NewCustomSlab("Doorframe", 4, 7, 2, RMode.YAxis, SMode.UVCutoff, true, false, new string[] {"CustomslabID"}),
-        Block.NewCustom("Door", 5, 8, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[] {"Direction4"}),
-        Block.NewCustom("Windowframe", 4, 9, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[] { "Direction4" }),
-        Block.NewCustom("Window", 11, 10, CMode.Vertical, RMode.YAxis, SMode.UVAlpha, true, true, new string[] {"Direction4"}),//30
-        Block.NewCustom("Table", 5, 6, CMode.Horizontal, RMode.AllAxis6, SMode.UVCutoff, true, false, new string[] {"Rotation"}),
-        Block.NewCustom("Chair", 5, 5, CMode.None, RMode.YAxis, SMode.UVCutoff, true, false, new string[] {"Direction4"}),
+        Block.NewCustomPlus("Door", 5, 8, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
+        Block.NewCustomPlus("Frame", 4, 9, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
+        Block.NewCustomPlus("Window", 11, 10, 2, CMode.Vertical, RMode.YAxis, SMode.UVAlpha, true, true, new string[0]),//30
+        Block.NewCustomPlus("Table", 5, 6, 0, CMode.Horizontal, RMode.None, SMode.UVCutoff, true, false, new string[0]),
+        Block.NewCustomPlus("Chair", 5, 5, 0, CMode.None, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
         Block.NewBlock("Glass", 11, SMode.UVAlpha, true, 0),
         Block.NewRounded("Rock", 10),
 		Block.NewPipe("Tree Branch", 4, 1),
-		Block.NewCustom("Fence", 4, 12, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[] { "CustomslabID" }),
+		Block.NewCustomPlus("Fence", 4, 12, 1, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
 
 		//TODO custom rotierung integrieren (RMode nur für platzierung)
 		//Customslabs integrieren
+		//Block.newCustom2()//Immer rotierung, slab
     };	
 
 	//Gibt an wie viele Meshs ein block annehmen kann (im Meshtable)
@@ -77,7 +76,7 @@ public class Block {
     public CMode connectMode;
     public RMode rotMode;
     public int slabType;
-    public bool mode;
+   // public bool mode;
     public BType type;
     public SMode shaderType;
 
@@ -87,11 +86,11 @@ public class Block {
     public Color32 color;		//Farbe für LOD renderer
     public string[] dataSize;	//Zusätzliche Daten mit bezeichnung (StructureId...)
 
-	public bool isTransparent;			  //   
+	public bool isTransparent;			//   
     public float density;				//Höherer Wert überschreibt niedrigen Wert, Rigidbody und Wasser Vehalten, Explosionswiderstand
     public float reactivity;			//Brennbarkeit, Explosionswiderstand
 
-	public Block(string blockName, int textureID, float textureScale, int meshID, int slabType, bool mode, BType blockType, CMode connectMode, RMode rotMode, SMode shaderType,  bool isSolid, bool isTransparent, string[] dataSize) {
+	public Block(string blockName, int textureID, float textureScale, int meshID, int slabType, BType blockType, CMode connectMode, RMode rotMode, SMode shaderType,  bool isSolid, bool isTransparent, string[] dataSize) {
 		this.id = count;
 		this.textureID = textureID;
 		this.meshID = meshID;
@@ -99,7 +98,6 @@ public class Block {
 		this.connectMode = connectMode;
 		this.rotMode = rotMode;
 		this.slabType = slabType;
-		this.mode = mode;
 		this.type = blockType;
 		this.shaderType = shaderType;
 		this.blockName = blockName;
@@ -113,31 +111,31 @@ public class Block {
 	
 
 	public static Block NewBlock(string blockName, int texture, SMode shaderMode, bool isTransparent, byte slabs) {
-        return new Block(blockName, texture, 1, 0, slabs, false, BType.Voxel, CMode.None, RMode.None, SMode.UVCutoff, true, isTransparent, new string[] {"SlabID"});
+        return new Block(blockName, texture, 1, 0, slabs, BType.Voxel, CMode.None, RMode.None, SMode.UVCutoff, true, isTransparent, new string[] {"SlabID"});
     }
     public static Block NewTerrain(string blockName, int texture) {
-        return new Block(blockName, texture, 4, 0, 0, false, BType.Terrain, CMode.None, RMode.None, SMode.Triplanar, true, false, new string[] { "IsFlat" });
+        return new Block(blockName, texture, 4, 0, 0, BType.Terrain, CMode.None, RMode.None, SMode.Triplanar, true, false, new string[] { "IsFlat" });
     }
 	public static Block NewRounded(string blockName, int texture) {
-		return new Block(blockName, texture, 3, 0, 0, false, BType.Rounded, CMode.None, RMode.None, SMode.Triplanar, true, false, new string[0]);
+		return new Block(blockName, texture, 3, 0, 0, BType.Rounded, CMode.None, RMode.None, SMode.Triplanar, true, false, new string[0]);
 	}
-	public static Block NewCustom(string blockName, int texture, byte meshId, CMode connectMode, RMode rotateMode, SMode shaderMode, bool isSolid, bool isTransparent, string[] data) {
-        return new Block(blockName, texture, 1, meshId, 0, false, BType.Custom, connectMode, rotateMode, shaderMode, isSolid, isTransparent, data);
+	public static Block NewCustom(string blockName, int texture, byte meshId, CMode connectMode, SMode shaderMode, bool isSolid, bool isTransparent, string[] data) {
+        return new Block(blockName, texture, 1, meshId, 0, BType.Custom, connectMode, RMode.None, shaderMode, isSolid, isTransparent, data);
     }
-	public static Block NewCustomSlab(string blockName, int texture, byte meshId, byte slabType, RMode rotateMode, SMode shaderMode, bool isSolid, bool isTransparent, string[] data) {
-		return new Block(blockName, texture, 1, meshId, slabType, false, BType.CustomSlab, CMode.None, rotateMode, shaderMode, isSolid, isTransparent, data);
+	public static Block NewCustomPlus(string blockName, int texture, byte meshId, byte slabType, CMode connectMode, RMode rotateMode, SMode shaderMode, bool isSolid, bool isTransparent, string[] data) {
+		return new Block(blockName, texture, 1, meshId, slabType, BType.Custom, connectMode, rotateMode, shaderMode, isSolid, isTransparent, Main.Concat( slabType != 0 ? new string[] { "SlabID" } : new string[] {"Rotation"}, data));
 	}
 	public static Block NewSlope(string blockName, int texture, bool isTransparent, byte slabs) {
-        return new Block(blockName, texture, 1, 1, slabs, true, BType.Voxel, CMode.None, RMode.Slope, SMode.UVCutoff, true, isTransparent, slabs == 0 ? new string[] { "SlabID" } : new string[] { "SlabID", "Direction12" });
+        return new Block(blockName, texture, 1, 1, slabs, BType.Slope, CMode.None, RMode.Slope, SMode.UVCutoff, true, isTransparent, slabs == 0 ? new string[] { "SlabID" } : new string[] { "SlabID", "Direction12" });
     }
     public static Block NewGrid(string blockName, int texture, int meshid) {
-        return new Block(blockName, texture, 2, meshid, 0, true, BType.Custom, CMode.Grid, RMode.None, SMode.UVCutoff, true, false, new string[0]);
+        return new Block(blockName, texture, 2, meshid, 0, BType.Custom, CMode.Grid, RMode.None, SMode.UVCutoff, true, false, new string[0]);
 	}
     public static Block NewPipe(string blockName, int texture, int meshid) {
-        return new Block(blockName, texture, 1, meshid, 0, true, BType.Custom, CMode.Pipe, RMode.AllAxis3, SMode.UVCutoff, true, false, new string[] { "Direction3" });
+        return new Block(blockName, texture, 1, meshid, 0, BType.Custom, CMode.Pipe, RMode.AllAxis3, SMode.UVCutoff, true, false, new string[] { "Direction3" });
     }
     public static Block NewLiquid(string blockName, int texture, bool isDynamic) {
-        return new Block(blockName, texture, 4, 0, 0, !isDynamic, BType.Liquid, CMode.None, RMode.None, SMode.UVAlpha, false, true, new string[] { "Height" });
+        return new Block(blockName, texture, 4, 0, isDynamic?0:1, BType.Liquid, CMode.None, RMode.None, SMode.UVAlpha, false, true, new string[] { "Height" });
     }
 
 	//Durchschnittsfarbe der Textur
@@ -196,8 +194,8 @@ public class Block {
 	//byte blockType
 	//ID Bez (attribute)            mode: true (zusatzaribute) / false (zusatzaribute)
 	// 0 Rendert Nicht
-	// 1 Fl�ssig (textur)   mode: static / dynamic                                      MainAtr height (16)
-	// 2 Terrain (textur)           mode: terrain / rounded                            MainAtr grounded (1)
+	// 1 Flüssig (textur)   mode: static / dynamic                                      MainAtr height (16)
+	// 2 Terrain (textur)           mode: terrain / rounded                             MainAtr grounded (1)
 	// 3 Voxel (textur slabmode)    mode: full voxel / custom voxel (rotmode meshid)    MainAtr slabmode  = 0? leer / rotation(24) : slabID (17) / data[0] slabID(17), data[1] rotation(24)
 	// 4 Custom (textur)            mode: rot (rotmode) / connect (meshtype)            Mainatr rotation (24) / leer
 	// 5 Custom Slab (textur slabmode meshtype? ) mode: Rotate3X : Rotate2X             Mainatr CslabId (15 / 30?)

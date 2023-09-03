@@ -48,23 +48,34 @@ public abstract class AChunk : MonoBehaviour{
 	public abstract void UpdateChunk(UpdateEvent e);
 
 	public bool IsVoxelInChunk(Vector3Int pos) {
-		return (pos.x >= 0 && pos.x < width.x && pos.y >= 0 && pos.y < width.y && pos.z >= 0 && pos.z < width.z);
+		return pos.x >= 0 && pos.x < width.x && pos.y >= 0 && pos.y < width.y && pos.z >= 0 && pos.z < width.z;
 	}
 
 	public Bounds GetBounds(Vector3Int pos) {
 		Block block = GetVoxel(pos);
-		if (block.type == BType.Voxel && !block.mode) { 
+		
+		if (block.type == BType.Voxel) { 
 			return VD.slabBounds[GetVoxelAtr(pos)];
 		}
-		if (block.type == BType.Voxel && block.mode && block.slabType != 0) {
+		if (block.type == BType.Slope && block.slabType != 0) {
 			return VD.slabBounds[GetVoxelData(pos).data[0]];
 		}
-		if (block.type == BType.Custom || block.type == BType.CustomSlab) {
+		if (block.type == BType.Custom) {
 			Bounds b = Main.meshTable[block.meshID][render.GetMeshIndex(pos)].bounds;
-			if (block.rotMode == RMode.None || block.connectMode != CMode.None) return b;
+			if (block.rotMode == RMode.None) return b;
+
+			int thisAtr = GetVoxelAtr(pos);
 			//Bounds rotiern is kompliziert
-			Vector3 min = VoxelRenderer.RotateVert(b.min, GetVoxelAtr(pos));
-			Vector3 max = VoxelRenderer.RotateVert(b.max, GetVoxelAtr(pos));
+			Vector3 min;
+			Vector3 max;
+			if (block.slabType == 0) {
+				min = VoxelRenderer.RotateVert(b.min, thisAtr);
+				max = VoxelRenderer.RotateVert(b.max, thisAtr);
+			}
+			else {
+				min = VoxelRenderer.RotateVert(b.min + new Vector3(0f, 0f, thisAtr % 3 / 3f), thisAtr / 3);
+				max = VoxelRenderer.RotateVert(b.max + new Vector3(0f, 0f, thisAtr % 3 / 3f), thisAtr / 3);
+			}
 			float t;
 			if (min.x > max.x) { t = min.x; min.x = max.x; max.x = t; }
 			if (min.y > max.y) { t = min.y; min.y = max.y; max.y = t; }

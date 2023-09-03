@@ -6,7 +6,7 @@ public class DynamicWater : Block {
 	public int layers;
 	public int delay;
 
-	public DynamicWater(int flowAmount, int layer, int speed) : base("Water", 12, 4, layer, 0, false, BType.Liquid, CMode.None, RMode.None, SMode.Water, false, true, new string[] { "Waterheight" }) {
+	public DynamicWater(int flowAmount, int layer, int speed) : base("Water", 12, 4, layer, 0, BType.Liquid, CMode.None, RMode.None, SMode.Water, false, true, new string[] { "Waterheight" }) {
 		amount = flowAmount;
 		layers = layer;
 		delay = speed;
@@ -28,7 +28,7 @@ public class DynamicWater : Block {
 			volumedown = volume;
 			volume = 0;
 		} else if (next.block.type == BType.Liquid) {
-			if (next.block.mode && volume == 1) {
+			if (next.block.slabType == 1 && volume == 1) {
 				volume = 0;
 				volumedown = -1;
 			} else if (next.mainAtr < layers) {
@@ -78,7 +78,7 @@ public class DynamicWater : Block {
 			}
 
 			for (int j = 0; j < 4; j++) {						//!
-				if (volumes[j] > 0 && volumes[j] <= layers && !world.GetVoxel(pos + VD.dirs[j + 2]).mode) world.SetVoxel(pos + VD.dirs[j + 2], id, volumes[j]);
+				if (volumes[j] > 0 && volumes[j] <= layers && world.GetVoxel(pos + VD.dirs[j + 2]).slabType == 0) world.SetVoxel(pos + VD.dirs[j + 2], id, volumes[j]);
 			}
 		}
 		if (volumedown > 0) world.SetVoxel(pos + Vector3Int.down, id, volumedown);
@@ -100,7 +100,7 @@ public class DynamicWater : Block {
 public class StaticWater : Block {
 	public byte dynamicLevel;
 
-	public StaticWater(byte dynamicWater) : base("Water Source", 12, 4, 0, 0, true, BType.Liquid, CMode.None, RMode.None, SMode.Water, false, true, new string[] { "Waterheight" }) {
+	public StaticWater(byte dynamicWater) : base("Water Source", 12, 4, 0, 1, BType.Liquid, CMode.None, RMode.None, SMode.Water, false, true, new string[] { "Waterheight" }) {
 		this.dynamicLevel = dynamicWater;
 	}
 	public override bool OnBlockUpdate(World world, Vector3Int pos) {
