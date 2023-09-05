@@ -22,8 +22,14 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 0357725a20b14244a8385fcacdc9104e, type: 2}
   - {fileID: 2100000, guid: f4f6408978d16254096f258e8f510e24, type: 2}
   - {fileID: 2100000, guid: fdf9ab8e12c70ee48a801c805f44a1e3, type: 2}
+  itemTextures:
+  - {fileID: -1804603516, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
+  - {fileID: 585653738, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
+  - {fileID: -713891682, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
+  - {fileID: 484452445, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
+  - {fileID: 879608149, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
   colorMap: {fileID: 2800000, guid: 544749cc3ccc5ec478d1a019633d53d2, type: 2}
-  renderDistance: 12
+  renderDistance: 2
   closeLods: 0
   farLods: 0
   lodrenderDistance: 12

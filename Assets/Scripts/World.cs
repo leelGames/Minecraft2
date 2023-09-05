@@ -25,7 +25,6 @@ public class World : MonoBehaviour {
     void Awake() {
         Main.Init(settings);
     }
-
     void Start() {
         threads = new WorldThreading(this);
 		gen = new Worldgen(this);
@@ -216,7 +215,7 @@ public class World : MonoBehaviour {
         return false;
     }
 
-    //Korrekturen für negative Koordinaten
+    //Korrekturen fï¿½r negative Koordinaten
     public Vector2Int GetChunkCoord(Vector3Int pos) {
         return new Vector2Int(pos.x < 0 ? (pos.x + 1) / VD.ChunkWidth - 1 : pos.x / VD.ChunkWidth, pos.z < 0 ? (pos.z + 1) / VD.ChunkWidth - 1 : pos.z / VD.ChunkWidth);
     }

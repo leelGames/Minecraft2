@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +8,8 @@ public class Settings : ScriptableObject {
 	public bool useFile = false;
 	[Header("Assets")]
 	public Material[] materials;
+
+	public Sprite[] itemTextures;
 	public Texture2D colorMap;
 
 	[Header("Performance")]

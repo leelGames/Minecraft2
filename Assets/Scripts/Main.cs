@@ -6,6 +6,8 @@ public static class Main {
     public static Settings s;
 	public static Material[] materials;
 	public static Texture2D colorMap;
+
+    public static Sprite[] itemTextures;
 	public static Mesh2[][] meshTable;
 
 	public static void Init(Settings s) {
@@ -21,6 +23,7 @@ public static class Main {
         }
         materials = s.materials;
         colorMap = s.colorMap;
+        itemTextures = s.itemTextures;
 		Main.s = s;
 		RenderSettings.fog = Main.s.fog;
         RenderSettings.fogMode = FogMode.Linear;
@@ -70,8 +73,8 @@ public static class Main {
     static Vector3 Round(Vector3 v) {
         return ((Vector3) Vector3Int.RoundToInt(v * 100f)) / 100f;
     }
-    public static string[] Concat(string[] x, string[] y) {
-		string[] z = new string[x.Length + y.Length];
+    public static E[] Concat<E>(E[] x, E[] y) {
+		E[] z = new E[x.Length + y.Length];
 		x.CopyTo(z, 0);
 		y.CopyTo(z, x.Length);
 		return z;
