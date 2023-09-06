@@ -5,10 +5,9 @@ public class Player : MonoBehaviour {
     public Camera cam;
     public DebugScreen debugscreen;
     public Highlight highlight;
-    public TextMeshProUGUI selectedBlockText;
     public CharacterController controller;
 
-    public byte selected;
+    //public int selected;
     public int dir4;
     public int dir6;
     public bool useDir;
@@ -25,7 +24,6 @@ public class Player : MonoBehaviour {
     float mouseX;
     float mouseY;
     float jump;
-    float scroll;
     bool hold = true;
     float verticalMomentumn;
     float realGravity;
@@ -47,8 +45,8 @@ public class Player : MonoBehaviour {
 		Cursor.lockState = CursorLockMode.Locked;
         realGravity = gravity;
         jumpState = 0;
-        selectedBlockText.text = BD.blocks[selected].blockName;
         cam.farClipPlane = (Main.s.lodrenderDistance + 1) * VD.LODWidth;
+        highlight.select(ID.items[0]);
     }
 
     void Update() {
@@ -76,46 +74,34 @@ public class Player : MonoBehaviour {
         mouseX = Input.GetAxis("Mouse X");
         mouseY = Input.GetAxis("Mouse Y");
         jump = Input.GetAxis("Jump");
-        scroll = Input.GetAxis("Mouse ScrollWheel");
 
         if (Input.GetButtonDown("Sprint")) isSprinting = true;
         else if (Input.GetButtonUp("Sprint")) isSprinting = false;
 
         if (highlight.gameObject.activeSelf) {
-            //Bl�cke abbauen
+            //Blöcke abbauen
             if (Input.GetMouseButtonDown(0)) {
                 Cursor.lockState = CursorLockMode.Locked;
                 if (highlight.face.activeSelf) highlight.RemoveBlock();
             }
-            //Bl�cke platzieren
+            //Blöcke platzieren
             if (Input.GetMouseButtonDown(1)) {
                 if (highlight.face.activeSelf) highlight.PlaceBlock();
             }
             if (Input.GetMouseButtonDown(2)) {
-                selected = highlight.world.GetVoxel(highlight.breakPos).id;
-                selectedBlockText.text = BD.blocks[selected].blockName;
+                highlight.select();
             }
         }
-        //TODO Inventarsystem 
-        //Bl�cke ausw�hlen
-        if (scroll != 0) {
-            if (scroll > 0) selected++;
-            else selected--;
-
-            if (selected > (byte)BD.blocks.Length - 1) selected = 1;
-            else if (selected < 1) selected = (byte)(BD.blocks.Length - 1);
-
-            selectedBlockText.text = BD.blocks[selected].blockName;
-        }
         if (Input.GetKeyDown(KeyCode.T)) {
-            highlight.world.GrowTree(highlight.breakPos + Vector3Int.down, selected);
+            highlight.world.GrowTree(highlight.breakPos + Vector3Int.down, highlight.selected.id);
         }
 		if (Input.GetKeyDown(KeyCode.F3)) {
 			debugscreen.gameObject.SetActive(!debugscreen.gameObject.activeSelf);
 		}
 
 	}
-    //Logik f�r Springen und Fliegen
+
+    //Logik für Springen und Fliegen
     void GetJumpState() {
         if (controller.isGrounded) jumpState = 0;
 

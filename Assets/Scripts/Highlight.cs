@@ -1,8 +1,10 @@
 using UnityEngine;
+using TMPro;
 
 public class Highlight : MonoBehaviour {
 
     public Player player;
+    public TextMeshProUGUI selectedBlockText;
     public World world;
     public GameObject face;
     public BoxCollider coll;
@@ -13,6 +15,8 @@ public class Highlight : MonoBehaviour {
     public Vector3Int slabPlacePos;
     readonly float stepincrement = 0.05f;
 
+    public Block selected;
+
     bool tcorrection;
     public int dir12;
     int dir2;
@@ -20,11 +24,20 @@ public class Highlight : MonoBehaviour {
     public int bslab;
     public int pslab;
 
+    public void select() {
+        selected = world.GetVoxel(breakPos);
+        selectedBlockText.text = BD.blocks[selected.id].blockName;
+    }
+    public void select(Item item) {
+        selected = BD.blocks[item.blockID];
+        selectedBlockText.text = item.name;
+    }
+
 	public void PlaceHighlight() {
         dir2 = player.dir4 / 2;
         dir3 = player.dir6 / 2;
         
-        Block selected = BD.blocks[player.selected];
+        //Block selected = BD.blocks[player.selected];
         bool hit = false;;
 		float step = stepincrement;
 		Vector3 pos = new();
@@ -93,7 +106,7 @@ public class Highlight : MonoBehaviour {
 	}
    
     public void RemoveBlock() {
-    	Block selected = BD.blocks[player.selected];
+    	//Block selected = BD.blocks[player.selected];
 		VoxelData pos = world.GetVoxelData(breakPos);
         tcorrection = false;
         //Rounded
@@ -142,14 +155,14 @@ public class Highlight : MonoBehaviour {
 	}
   
     public void PlaceBlock() {
-		Block selected = BD.blocks[player.selected];
+		//Block selected = BD.blocks[player.selected];
         VoxelData pos = world.GetVoxelData(blockPlacePos);
         //Terrain
         if (selected.type == BType.Terrain) {
             tcorrection = true;
             for (int i = 0; i < 8; i++) {
                 if (world.GetVoxel(terrainPlacePos - VD.voxelVerts[i]).type == BType.Air) {
-                    world.SetVoxel(terrainPlacePos - VD.voxelVerts[i], player.selected);
+                    world.SetVoxel(terrainPlacePos - VD.voxelVerts[i], selected.id);
                 }
             }
         } else if (selected.type == BType.Voxel && selected.slabType != 0 && (pos.block.type == BType.Air || pos.block.type == BType.Voxel)) {
@@ -159,13 +172,13 @@ public class Highlight : MonoBehaviour {
             if (selected.slabType == 1 && ((pos.block.slabType == 1) || pos.block.type == BType.Air)) {
                 int slab = VD.halfSlabCombiner[pslab, 1 + VD.slabDataToID[pos.mainAtr]];
                 if (slab == -1) return;
-                world.SetVoxel(slabPlacePos, player.selected, 1 + 3 * dir3 + slab);
+                world.SetVoxel(slabPlacePos, selected.id, 1 + 3 * dir3 + slab);
             }
             //Thirdslabs
             else if (selected.slabType == 2 && ((pos.block.slabType == 2) || pos.block.type == BType.Air)) {
                 int slab = VD.thirdSlabCombiner[pslab, 1 + VD.slabDataToID[pos.mainAtr]];
                 if (slab == -1) return;
-                world.SetVoxel(slabPlacePos, player.selected, 10 + 6 * dir3 + slab);
+                world.SetVoxel(slabPlacePos, selected.id, 10 + 6 * dir3 + slab);
             } 
         } 
         else if (selected.type == BType.Slope && selected.slabType != 0 && (pos.block.type == BType.Air || pos.block.type == BType.Slope)) {
@@ -173,23 +186,23 @@ public class Highlight : MonoBehaviour {
             if (selected.slabType == 1 && ((pos.block.slabType == 1) || pos.block.type == BType.Air)) {
                 int slab = VD.halfSlabCombiner[pslab, 1 + VD.slabDataToID[pos.data.Length == 2 ? pos.data[0] : 0]];
                 if (slab == -1) return;
-                world.SetVoxel(slabPlacePos, player.selected, new byte[] { (byte)(1 + 3 * dir3 + slab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
+                world.SetVoxel(slabPlacePos, selected.id, new byte[] { (byte)(1 + 3 * dir3 + slab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
             }
             else if (selected.slabType == 2 && ((pos.block.slabType == 2) || pos.block.type == BType.Air)) {
                 int slab = VD.thirdSlabCombiner[pslab, 1 + VD.slabDataToID[pos.data.Length == 2 ? pos.data[0] : 0]];
                 if (slab == -1) return;
-                world.SetVoxel(slabPlacePos, player.selected, new byte[] { (byte)(10 + 6 * dir3 + slab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
+                world.SetVoxel(slabPlacePos,selected.id, new byte[] { (byte)(10 + 6 * dir3 + slab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
             } 
             else { Debug.Log("wron slab"); }
         }
-        else if (selected.type == BType.Liquid) world.SetVoxel(blockPlacePos, player.selected, 12);
-        else if (selected.type == BType.Custom && selected.slabType != 0) world.SetVoxel(slabPlacePos, player.selected, 3 * player.dir4 + (player.dir4 == 0 || player.dir4 == 2 ? pslab : 2 - pslab));
-        else if (selected.rotMode == RMode.Slope) world.SetVoxel(blockPlacePos, player.selected, dir12 * 2);
-        else if (selected.rotMode == RMode.AllAxis6) world.SetVoxel(blockPlacePos, player.selected, player.dir6 * 4);
-        else if (selected.rotMode == RMode.YAxis) world.SetVoxel(blockPlacePos, player.selected, player.dir4);
-        else if (selected.rotMode == RMode.AllAxis3) world.SetVoxel(blockPlacePos, player.selected, dir3 * 8);
+        else if (selected.type == BType.Liquid) world.SetVoxel(blockPlacePos, selected.id, 12);
+        else if (selected.type == BType.Custom && selected.slabType != 0) world.SetVoxel(slabPlacePos, selected.id, 3 * player.dir4 + (player.dir4 == 0 || player.dir4 == 2 ? pslab : 2 - pslab));
+        else if (selected.rotMode == RMode.Slope) world.SetVoxel(blockPlacePos, selected.id, dir12 * 2);
+        else if (selected.rotMode == RMode.AllAxis6) world.SetVoxel(blockPlacePos, selected.id, player.dir6 * 4);
+        else if (selected.rotMode == RMode.YAxis) world.SetVoxel(blockPlacePos, selected.id, player.dir4);
+        else if (selected.rotMode == RMode.AllAxis3) world.SetVoxel(blockPlacePos, selected.id, dir3 * 8);
         else {
-            world.SetVoxel(blockPlacePos, player.selected);
+            world.SetVoxel(blockPlacePos, selected.id);
         }
         if (Main.s.voxelentities) {
             world.CreateFallingStructure(blockPlacePos);

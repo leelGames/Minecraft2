@@ -29,7 +29,7 @@ MonoBehaviour:
   - {fileID: 484452445, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
   - {fileID: 879608149, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
   colorMap: {fileID: 2800000, guid: 544749cc3ccc5ec478d1a019633d53d2, type: 2}
-  renderDistance: 2
+  renderDistance: 4
   closeLods: 0
   farLods: 0
   lodrenderDistance: 12
