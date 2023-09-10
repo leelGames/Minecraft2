@@ -8,7 +8,7 @@ public class Hotbar : MonoBehaviour {
     public Sprite[] sprites;
     
     public Image[] slotObjects;
-    public Image[] itemObjects;
+    public UIItem[] itemObjects;
     Item[] slots;
     float scroll;
     int size = 0;
@@ -21,7 +21,7 @@ public class Hotbar : MonoBehaviour {
     }
 
     void Update() {
-        if (Input.GetKeyDown(KeyCode.X)) addItem(ID.items[size % 4 + 1]);
+        if (Input.GetKeyDown(KeyCode.X)) addItem(ID.items[size + 1]);
         if (Input.GetKeyDown(KeyCode.Y)) removeItem(selectIndex);
 
         if (size > 0) {
@@ -46,8 +46,8 @@ public class Hotbar : MonoBehaviour {
            
             slots[size] = item;
             slotObjects[size].enabled = true;
-            itemObjects[size].sprite = Main.itemTextures[item.textureID];
-            itemObjects[size].enabled = true;
+            itemObjects[size].image.sprite = Main.itemTextures[item.textureID];
+            itemObjects[size].image.enabled = true;
             size++;
 
             player.highlight.select(slots[selectIndex]);
@@ -58,10 +58,10 @@ public class Hotbar : MonoBehaviour {
         if (size > 0) {
             slots[slot] = ID.items[0];
             
-            itemObjects[slot].sprite = null;
-            itemObjects[slot].enabled = false;
+            itemObjects[slot].image.sprite = null;
+            itemObjects[slot].image.enabled = false;
             if (slot == size - 1) {
-                while (slot >= 0 && itemObjects[slot].sprite == null) {
+                while (slot >= 0 && itemObjects[slot].image.sprite == null) {
                     size--;
                     slotObjects[slot].sprite = sprites[0];
                     slotObjects[slot].enabled = false;

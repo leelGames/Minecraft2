@@ -36,6 +36,16 @@ public class Item {
     }
 }
 
+public struct ItemStack {
+    int itemID;
+    byte count;
+
+    public ItemStack(int id, byte count) {
+        this.itemID = id;
+        this.count = count;
+    }
+}
+
 /*public class BlockItem : Item {
      Block block;
 

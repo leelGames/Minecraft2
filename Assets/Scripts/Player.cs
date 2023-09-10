@@ -5,6 +5,7 @@ public class Player : MonoBehaviour {
     public Camera cam;
     public DebugScreen debugscreen;
     public Highlight highlight;
+    public Inventory inventory;
     public CharacterController controller;
 
     //public int selected;
@@ -42,11 +43,13 @@ public class Player : MonoBehaviour {
 
     void Start() {
 		debugscreen.gameObject.SetActive(false);
+        inventory.gameObject.SetActive(false);
 		Cursor.lockState = CursorLockMode.Locked;
         realGravity = gravity;
         jumpState = 0;
         cam.farClipPlane = (Main.s.lodrenderDistance + 1) * VD.LODWidth;
         highlight.select(ID.items[0]);
+        inventory.content = GetCreativeInventory();
     }
 
     void Update() {
@@ -92,14 +95,25 @@ public class Player : MonoBehaviour {
                 highlight.select();
             }
         }
+        if (Input.GetKeyDown(KeyCode.E)) {
+            inventory.Load();
+            inventory.gameObject.SetActive(!inventory.gameObject.activeSelf);
+        }
         if (Input.GetKeyDown(KeyCode.T)) {
             highlight.world.GrowTree(highlight.breakPos + Vector3Int.down, highlight.selected.id);
         }
 		if (Input.GetKeyDown(KeyCode.F3)) {
 			debugscreen.gameObject.SetActive(!debugscreen.gameObject.activeSelf);
 		}
-
 	}
+
+    CreativeInventory GetCreativeInventory() {
+        CreativeInventory inventory = new();
+        for (int i = 1; i < ID.items.Length; i++) {
+            inventory.add(ID.items[i]);
+        }
+        return inventory;
+    }
 
     //Logik für Springen und Fliegen
     void GetJumpState() {
