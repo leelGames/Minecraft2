@@ -6,35 +6,36 @@ using UnityEngine.UI;
 public class Hotbar : MonoBehaviour {
     public Player player;
     public Sprite[] sprites;
+    public GameObject slotPrefab;
+    public GameObject itemPrefab;
     
-    public Image[] slotObjects;
-    public UIItem[] itemObjects;
-    Item[] slots;
+    List<UISlot> slotObjects;
+  
+    List<Item> slots;
     float scroll;
-    int size = 0;
 
     int selectIndex = 0;
 
     void Start() {
-        slots = new Item[8];
-        for (int i = 0; i < slots.Length; i++) slots[i] = ID.items[0];
+        slotObjects = new();
+        slots = new();
     }
 
     void Update() {
-        if (Input.GetKeyDown(KeyCode.X)) addItem(ID.items[size + 1]);
+        if (Input.GetKeyDown(KeyCode.X)) addItem(ID.items[slots.Count + 1]);
         if (Input.GetKeyDown(KeyCode.Y)) removeItem(selectIndex);
-
-        if (size > 0) {
+       
+        if (slots.Count > 0) {
             scroll = Input.GetAxis("Mouse ScrollWheel");
             if (scroll != 0) {
-                slotObjects[selectIndex].sprite = sprites[0];
+                slotObjects[selectIndex].image.sprite = sprites[0];
                 if (scroll < 0) selectIndex++;
                 else selectIndex--;
 
-                if (selectIndex >= size) selectIndex = 0;
-                else if (selectIndex < 0) selectIndex = size - 1;
+                if (selectIndex >= slots.Count) selectIndex = 0;
+                else if (selectIndex < 0) selectIndex = slots.Count - 1;
 
-                slotObjects[selectIndex].sprite = sprites[2];
+                slotObjects[selectIndex].image.sprite = sprites[2];
 
                 player.highlight.select(slots[selectIndex]);
             }
@@ -42,38 +43,49 @@ public class Hotbar : MonoBehaviour {
     }
 
     void addItem(Item item) {
-        if (size < 8) {
-           
-            slots[size] = item;
-            slotObjects[size].enabled = true;
-            itemObjects[size].image.sprite = Main.itemTextures[item.textureID];
-            itemObjects[size].image.enabled = true;
-            size++;
+        if (slots.Count < 20) {
+            slots.Add(item);
 
-            player.highlight.select(slots[selectIndex]);
-            transform.position += new Vector3(-36, 0, 0);
+            UISlot slotObject = Instantiate(slotPrefab).GetComponent<UISlot>();
+            slotObject.transform.SetParent(transform);
+            
+            UIItem itemObject = Instantiate(itemPrefab).GetComponent<UIItem>();
+            slotObject.item = itemObject;
+            itemObject.transform.SetParent(slotObject.transform);
+
+            itemObject.image.sprite = Main.itemTextures[item.textureID];
+            slotObjects.Add(slotObject);
+
+            //player.highlight.select(slots[selectIndex]);
+
+            if (slots.Count == 1) slotObjects[selectIndex].image.sprite = sprites[2];
         }
     }
     void removeItem(int slot) {
-        if (size > 0) {
+        if (slots.Count > 0) {
             slots[slot] = ID.items[0];
             
-            itemObjects[slot].image.sprite = null;
-            itemObjects[slot].image.enabled = false;
-            if (slot == size - 1) {
-                while (slot >= 0 && itemObjects[slot].image.sprite == null) {
-                    size--;
-                    slotObjects[slot].sprite = sprites[0];
-                    slotObjects[slot].enabled = false;
+            slotObjects[slot].item.image.sprite = null;
+            slotObjects[slot].item.image.enabled = false;
+
+            if (slot == slots.Count - 1) {
+                while (slot >= 0 && slotObjects[slot].item.image.sprite == null) {
+                    slots.RemoveAt(slot);
+                    UISlot slotobject = slotObjects[slot];
+                    slotObjects.RemoveAt(slot);
+                    Destroy(slotobject.gameObject);
                     slot--;
-                    transform.position += new Vector3(36, 0, 0);
                 }
-                if (slot < 0) slot = 0;
                 selectIndex = slot;
-                slotObjects[selectIndex].sprite = sprites[2];
-              
-            } 
-            player.highlight.select(slots[selectIndex]);
+            }
+            if (slot < 0) {
+                selectIndex = 0;
+                player.highlight.select(ID.items[0]);
+            }
+            else { 
+                player.highlight.select(slots[selectIndex]);
+                slotObjects[selectIndex].image.sprite = sprites[2];
+            }
         }
     }
 }

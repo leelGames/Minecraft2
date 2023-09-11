@@ -10,8 +10,8 @@ public static class ID {
     
     static Item[] getBlockItems() {
         Item[] blockItems = new Item[BD.blocks.Length - 1];
-        for (int i = 1; i < blockItems.Length; i++) {
-            blockItems[i - 1] = new Item(BD.blocks[i].blockName, BD.blocks[i].textureID, BD.blocks[i].id);
+        for (int i = 0; i < blockItems.Length; i++) {
+            blockItems[i] = new Item(BD.blocks[i + 1].blockName, BD.blocks[i].id, BD.blocks[i + 1].id);
         }
         return blockItems;
     }
@@ -37,8 +37,8 @@ public class Item {
 }
 
 public struct ItemStack {
-    int itemID;
-    byte count;
+    public int itemID;
+    public byte count;
 
     public ItemStack(int id, byte count) {
         this.itemID = id;

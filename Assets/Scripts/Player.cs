@@ -8,7 +8,11 @@ public class Player : MonoBehaviour {
     public Inventory inventory;
     public CharacterController controller;
 
+    public GameObject crosshair;
+
     //public int selected;
+
+    public bool inUI;
     public int dir4;
     public int dir6;
     public bool useDir;
@@ -43,12 +47,12 @@ public class Player : MonoBehaviour {
 
     void Start() {
 		debugscreen.gameObject.SetActive(false);
-        inventory.gameObject.SetActive(false);
-		Cursor.lockState = CursorLockMode.Locked;
         realGravity = gravity;
         jumpState = 0;
         cam.farClipPlane = (Main.s.lodrenderDistance + 1) * VD.LODWidth;
         highlight.select(ID.items[0]);
+        inUI = false;
+        CloseInventory();
         inventory.content = GetCreativeInventory();
     }
 
@@ -66,9 +70,35 @@ public class Player : MonoBehaviour {
         highlight.PlaceHighlight();
     }
 
-    void GetPlayerInput() {
-        if (Input.GetButtonDown("Cancel")) {
+    public void OnApplicationFocus(bool hasFocus) {
+        if (hasFocus) {
             Cursor.lockState = CursorLockMode.None;
+        }
+        else {
+            inUI = true;
+            OpenInventory();
+        }
+    }
+
+    void OpenInventory() {
+    	inventory.Load();
+        inventory.gameObject.SetActive(true);
+        highlight.gameObject.SetActive(false);
+        crosshair.SetActive(false);
+        Cursor.lockState = CursorLockMode.None;
+    }
+    void CloseInventory() {
+        inventory.gameObject.SetActive(false);
+        highlight.gameObject.SetActive(true);
+        crosshair.SetActive(true);
+		Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    void GetPlayerInput() {
+        if (Input.GetButtonDown("Cancel") || Input.GetKeyDown(KeyCode.E)) {
+            inUI = !inUI;
+            if (inUI) OpenInventory();
+            else CloseInventory();
         }
         if (hold) hold = false;
         if (jump != 0) hold = true;
@@ -83,21 +113,16 @@ public class Player : MonoBehaviour {
 
         if (highlight.gameObject.activeSelf) {
             //Blöcke abbauen
-            if (Input.GetMouseButtonDown(0)) {
-                Cursor.lockState = CursorLockMode.Locked;
+            if (Input.GetMouseButtonDown(0) && !inUI) {
                 if (highlight.face.activeSelf) highlight.RemoveBlock();
             }
             //Blöcke platzieren
-            if (Input.GetMouseButtonDown(1)) {
+            if (Input.GetMouseButtonDown(1) && !inUI) {
                 if (highlight.face.activeSelf) highlight.PlaceBlock();
             }
             if (Input.GetMouseButtonDown(2)) {
                 highlight.select();
             }
-        }
-        if (Input.GetKeyDown(KeyCode.E)) {
-            inventory.Load();
-            inventory.gameObject.SetActive(!inventory.gameObject.activeSelf);
         }
         if (Input.GetKeyDown(KeyCode.T)) {
             highlight.world.GrowTree(highlight.breakPos + Vector3Int.down, highlight.selected.id);
@@ -109,7 +134,7 @@ public class Player : MonoBehaviour {
 
     CreativeInventory GetCreativeInventory() {
         CreativeInventory inventory = new();
-        for (int i = 1; i < ID.items.Length; i++) {
+        for (int i = 0; i < ID.items.Length; i++) {
             inventory.add(ID.items[i]);
         }
         return inventory;
