@@ -91,3 +91,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   image: {fileID: 2577098400622130487}
   item: {fileID: 0}
+  sprites:
+  - {fileID: -492018946, guid: a97d2b7ff68152947abf00eaa7e1a86e, type: 3}
+  - {fileID: 2017223196, guid: a97d2b7ff68152947abf00eaa7e1a86e, type: 3}
+  - {fileID: -554177850, guid: a97d2b7ff68152947abf00eaa7e1a86e, type: 3}

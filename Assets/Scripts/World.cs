@@ -46,7 +46,7 @@ public class World : MonoBehaviour {
         //while (chunksToGenerate.Count > 0 || chunksToUpdate.Count > 0);		
         if (Main.s.farLods) LoadLODs(playerLodCoord);
         Bounds b = new Bounds(Vector3.zero, Vector3.one);
-        Debug.Log(Vector3Int.RoundToInt(b.center) + " " + Vector3Int.RoundToInt(b.size));
+        //Debug.Log(Vector3Int.RoundToInt(b.center) + " " + Vector3Int.RoundToInt(b.size));
 
     }
 
@@ -372,7 +372,7 @@ public class World : MonoBehaviour {
             }
         }
     }
-
+    //List<Vector3Int> TraverseFor(Vector3Int pos, (VoxelData a, VoxelData b) compare -> bool) {return null;}
     List<Vector3Int> Traverse(Vector3Int pos) {
         List<Vector3Int> list = new();
         Queue<Vector3Int> queue = new();

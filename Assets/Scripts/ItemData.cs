@@ -4,14 +4,14 @@ using UnityEngine;
 
 public static class ID {
     public static Item[] items = Main.Concat<Item>(new Item[]{
-        new Item("Empty", 0, 0)
+        new Item("Empty", 0)
 
     }, getBlockItems());
     
     static Item[] getBlockItems() {
         Item[] blockItems = new Item[BD.blocks.Length - 1];
         for (int i = 0; i < blockItems.Length; i++) {
-            blockItems[i] = new Item(BD.blocks[i + 1].blockName, BD.blocks[i].id, BD.blocks[i + 1].id);
+            blockItems[i] = new Item(BD.blocks[i + 1].blockName, BD.blocks[i + 1].id);
         }
         return blockItems;
     }
@@ -24,13 +24,12 @@ public class Item {
     public string name;
     public int blockID;
      //ItemEntity entity;
-    public int textureID;
+    //public int textureID;
     int stacklimit;
 
-    public Item(string name, int textureID, int blockID) {
+    public Item(string name, int blockID) {
         this.id = count;
         this.name = name;
-        this.textureID = textureID;
         this.blockID = blockID;
         count++;
     }

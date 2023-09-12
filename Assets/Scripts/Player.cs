@@ -5,6 +5,7 @@ public class Player : MonoBehaviour {
     public Camera cam;
     public DebugScreen debugscreen;
     public Highlight highlight;
+    public Hotbar hotbar;
     public Inventory inventory;
     public CharacterController controller;
 
@@ -46,14 +47,14 @@ public class Player : MonoBehaviour {
     }
 
     void Start() {
-		debugscreen.gameObject.SetActive(false);
+        inventory.Init(); //Unity buggt rum und ruft startet Inventory nicht
+		//debugscreen.gameObject.SetActive(false);
         realGravity = gravity;
         jumpState = 0;
         cam.farClipPlane = (Main.s.lodrenderDistance + 1) * VD.LODWidth;
         highlight.select(ID.items[0]);
         inUI = false;
-        CloseInventory();
-        inventory.content = GetCreativeInventory();
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update() {
@@ -70,18 +71,19 @@ public class Player : MonoBehaviour {
         highlight.PlaceHighlight();
     }
 
-    public void OnApplicationFocus(bool hasFocus) {
+    /*public void OnApplicationFocus(bool hasFocus) {//wird vor Start() aufgerufen!
         if (hasFocus) {
-            Cursor.lockState = CursorLockMode.None;
+            if (inUI) Cursor.lockState = CursorLockMode.None;
+            else Cursor.lockState = CursorLockMode.Locked;
         }
         else {
             inUI = true;
             OpenInventory();
         }
-    }
+    }*/
 
     void OpenInventory() {
-    	inventory.Load();
+        inventory.Load();
         inventory.gameObject.SetActive(true);
         highlight.gameObject.SetActive(false);
         crosshair.SetActive(false);
@@ -132,9 +134,9 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-    CreativeInventory GetCreativeInventory() {
+    public CreativeInventory GetCreativeInventory() {
         CreativeInventory inventory = new();
-        for (int i = 0; i < ID.items.Length; i++) {
+        for (int i = 1; i < ID.items.Length; i++) {
             inventory.add(ID.items[i]);
         }
         return inventory;

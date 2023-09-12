@@ -154,7 +154,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 59526581}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4436597
 MonoBehaviour:
@@ -366,8 +366,8 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 385197509}
   - {fileID: 4436596}
+  - {fileID: 385197509}
   - {fileID: 811024534}
   - {fileID: 855406398}
   - {fileID: 1125158530}
@@ -411,7 +411,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 59526581}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -568,7 +568,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &811024534
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1083,13 +1083,14 @@ GameObject:
   - component: {fileID: 1125158533}
   - component: {fileID: 1125158532}
   - component: {fileID: 1125158531}
+  - component: {fileID: 1125158534}
   m_Layer: 5
   m_Name: Inventory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1125158530
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1099,7 +1100,7 @@ RectTransform:
   m_GameObject: {fileID: 1125158529}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 59526581}
@@ -1108,7 +1109,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 300, y: 0}
-  m_SizeDelta: {x: 250, y: 300}
+  m_SizeDelta: {x: 500, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1125158531
 MonoBehaviour:
@@ -1122,9 +1123,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33ac45cf6758b854cb1e93381325ccd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sprites: []
-  slotObjects: []
-  itemObjects: []
+  player: {fileID: 838488116}
+  slotPrefab: {fileID: 2577098399089733930, guid: 50372290138fe914d9371a6a9870e899, type: 3}
+  itemPrefab: {fileID: 2786212612393823905, guid: fde1e5d1d47ea93488c1ec8b212b177a, type: 3}
 --- !u!114 &1125158532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1163,6 +1164,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1125158529}
   m_CullTransparentMesh: 1
+--- !u!114 &1125158534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1125158529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding:
+    m_Left: 10
+    m_Right: 0
+    m_Top: 10
+    m_Bottom: 0
+  m_ChildAlignment: 0
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 64, y: 64}
+  m_Spacing: {x: 10, y: 10}
+  m_Constraint: 1
+  m_ConstraintCount: 8
 --- !u!1 &1168622057
 GameObject:
   m_ObjectHideFlags: 0
@@ -1199,7 +1224,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 32}
+  m_AnchoredPosition: {x: 0, y: 52}
   m_SizeDelta: {x: 582, y: 84}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1168622060
@@ -1223,10 +1248,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 838488116}
-  sprites:
-  - {fileID: -492018946, guid: a97d2b7ff68152947abf00eaa7e1a86e, type: 3}
-  - {fileID: 2017223196, guid: a97d2b7ff68152947abf00eaa7e1a86e, type: 3}
-  - {fileID: -554177850, guid: a97d2b7ff68152947abf00eaa7e1a86e, type: 3}
   slotPrefab: {fileID: 2577098399089733930, guid: 50372290138fe914d9371a6a9870e899, type: 3}
   itemPrefab: {fileID: 2786212612393823905, guid: fde1e5d1d47ea93488c1ec8b212b177a, type: 3}
 --- !u!114 &1168622062

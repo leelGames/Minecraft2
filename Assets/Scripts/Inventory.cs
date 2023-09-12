@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Inventory : MonoBehaviour {
-     public Sprite[] sprites;
+public class Inventory : UIAbstractContainer {
     
-    public List<UISlot> slotObjects;
-    public GameObject slotPrefab;
-    public GameObject itemPrefab;
     public CreativeInventory content;
 
-    void Start() {
+    public void Init() {
+        Debug.Log("Start");
         slotObjects = new();
+        content = player.GetCreativeInventory();
     }
 
     public void Load() {
@@ -20,25 +18,13 @@ public class Inventory : MonoBehaviour {
 
             for (int i = 0; i < content.slots.Count; i++) {
                 if (slotObjects.Count <= i) {
-                    UISlot slotObject = Instantiate(slotPrefab).GetComponent<UISlot>();
-                    slotObject.transform.SetParent(transform);
-            
-                    UIItem itemObject = Instantiate(itemPrefab).GetComponent<UIItem>();
-                    slotObject.item = itemObject;
-                    itemObject.transform.SetParent(slotObject.transform);
-
-                    itemObject.image.sprite = Main.itemTextures[ID.items[content.slots[i].itemID].textureID];
-                    slotObjects.Add(slotObject);
+                   CreateSlot();
                 }
-                else if (slotObjects[i].item.image.sprite != Main.itemTextures[content.slots[i].itemID]) {
-                    slotObjects[i].item.image.sprite = Main.itemTextures[content.slots[i].itemID];
-                }
+                slotObjects[i].item = content.slots[i];
             }
-
         }
         content.loaded = true;
     }
-
 }
 
 public class AbstractInventory {

@@ -3,77 +3,85 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Hotbar : MonoBehaviour {
-    public Player player;
-    public Sprite[] sprites;
-    public GameObject slotPrefab;
-    public GameObject itemPrefab;
-    
-    List<UISlot> slotObjects;
-  
+public class Hotbar : UIAbstractContainer {
     List<Item> slots;
+   
     float scroll;
-
     int selectIndex = 0;
+    int size;
 
-    void Start() {
+    public void Start() {
         slotObjects = new();
         slots = new();
+        size = 0;
     }
 
     void Update() {
-        if (Input.GetKeyDown(KeyCode.X)) addItem(ID.items[slots.Count + 1]);
-        if (Input.GetKeyDown(KeyCode.Y)) removeItem(selectIndex);
+        if (Input.GetKeyDown(KeyCode.X)) AddItem(ID.items[slots.Count + 1]);
+        if (Input.GetKeyDown(KeyCode.Y)) RemoveItem(selectIndex);
        
         if (slots.Count > 0) {
             scroll = Input.GetAxis("Mouse ScrollWheel");
             if (scroll != 0) {
-                slotObjects[selectIndex].image.sprite = sprites[0];
+                slotObjects[selectIndex].setSprite(0);
                 if (scroll < 0) selectIndex++;
                 else selectIndex--;
 
                 if (selectIndex >= slots.Count) selectIndex = 0;
                 else if (selectIndex < 0) selectIndex = slots.Count - 1;
 
-                slotObjects[selectIndex].image.sprite = sprites[2];
+                slotObjects[selectIndex].setSprite(2);
 
                 player.highlight.select(slots[selectIndex]);
             }
         }
     }
-
-    void addItem(Item item) {
-        if (slots.Count < 20) {
+    void AddUISlot() {
+        if (slotObjects.Count <= size) {
+            CreateSlot();
+        }
+        else //if (slotObjects[size].item.itemID == 0) {
+            slotObjects[size].gameObject.SetActive(true);
+       // } 
+        size++;
+    }
+    void SetItem(int slot, Item item) {
+        if (slots.Count <= slot) {
+            slots[slot] = item;
+            slotObjects[slot].item = new ItemStack(item.id, 1);
+        }
+        else AddItem(item);
+    }
+    void AddItem(Item item) {
+        if (size < 20) {
             slots.Add(item);
+            AddUISlot();
+           
+            slotObjects[size - 1].item = new ItemStack(item.id, 1);
+           
 
-            UISlot slotObject = Instantiate(slotPrefab).GetComponent<UISlot>();
-            slotObject.transform.SetParent(transform);
-            
-            UIItem itemObject = Instantiate(itemPrefab).GetComponent<UIItem>();
-            slotObject.item = itemObject;
-            itemObject.transform.SetParent(slotObject.transform);
-
-            itemObject.image.sprite = Main.itemTextures[item.textureID];
-            slotObjects.Add(slotObject);
-
-            //player.highlight.select(slots[selectIndex]);
-
-            if (slots.Count == 1) slotObjects[selectIndex].image.sprite = sprites[2];
+            if (slots.Count == 1) {
+                player.highlight.select(slots[selectIndex]);
+                slotObjects[selectIndex].setSprite(2);
+            }
         }
     }
-    void removeItem(int slot) {
-        if (slots.Count > 0) {
-            slots[slot] = ID.items[0];
-            
-            slotObjects[slot].item.image.sprite = null;
-            slotObjects[slot].item.image.enabled = false;
+    void RemoveUISlot(int slot) {
+        slotObjects[slot].setSprite(0);
+        slotObjects[slot].gameObject.SetActive(false);
+        size--;
+        //slotObjects[slot].icon = null;
+    }
 
-            if (slot == slots.Count - 1) {
-                while (slot >= 0 && slotObjects[slot].item.image.sprite == null) {
+    void RemoveItem(int slot) {
+        if (size > 0) {
+            slots[slot] = ID.items[0];
+            slotObjects[slot].item = new ItemStack(0, 0);
+
+            if (slot == size - 1) {
+                while (slot >= 0 && slotObjects[slot].item.itemID == 0) {
                     slots.RemoveAt(slot);
-                    UISlot slotobject = slotObjects[slot];
-                    slotObjects.RemoveAt(slot);
-                    Destroy(slotobject.gameObject);
+                    RemoveUISlot(slot);
                     slot--;
                 }
                 selectIndex = slot;
@@ -84,8 +92,20 @@ public class Hotbar : MonoBehaviour {
             }
             else { 
                 player.highlight.select(slots[selectIndex]);
-                slotObjects[selectIndex].image.sprite = sprites[2];
+                slotObjects[selectIndex].setSprite(2);
             }
         }
+    }
+
+    public void OnStartDrag() {
+        AddUISlot();
+        slotObjects[size - 1].setSprite(1);
+    }
+    public void OnEndDrag() {
+        RemoveUISlot(size - 1);
+    }
+
+    public void TryAddItem(UISlot slot, UIItem itemObject) {
+        if (slot == slotObjects[size - 1]) SetItem(slots.Count - 1, ID.items[itemObject.item.itemID]);
     }
 }
