@@ -2,13 +2,16 @@ using UnityEngine;
 using TMPro;
 
 public class Player : MonoBehaviour {
+
+    //static Player client;
     public Camera cam;
     public DebugScreen debugscreen;
     public Highlight highlight;
     public Hotbar hotbar;
     public Inventory inventory;
     public CharacterController controller;
-
+    public InventoryManager inventoryM;
+    //public MovementManager movement;
     public GameObject crosshair;
 
     //public int selected;
@@ -47,6 +50,7 @@ public class Player : MonoBehaviour {
     }
 
     void Start() {
+        inventoryM = new(this);
         inventory.Init(); //Unity buggt rum und ruft startet Inventory nicht
 		//debugscreen.gameObject.SetActive(false);
         realGravity = gravity;

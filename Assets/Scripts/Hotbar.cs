@@ -8,7 +8,9 @@ public class Hotbar : UIAbstractContainer {
    
     float scroll;
     int selectIndex = 0;
-    int size;
+    int size; //Anzahl slots mit plus
+    //slots.count Anzahl slots ohne plus
+    //slotObjects.count Anzahl aller Slotobjekte
 
     public void Start() {
         slotObjects = new();
@@ -40,15 +42,30 @@ public class Hotbar : UIAbstractContainer {
         if (slotObjects.Count <= size) {
             CreateSlot();
         }
-        else //if (slotObjects[size].item.itemID == 0) {
-            slotObjects[size].gameObject.SetActive(true);
-       // } 
+        else {slotObjects[size].gameObject.SetActive(true);}
+       
         size++;
     }
+     public bool TrySetItem(UISlot slot, UIItem itemObject) {
+        for (int i = 0; i < size; i++) {
+            if (slotObjects[i] == slot) {
+                SetItem(i, ID.items[itemObject.item.itemID]);
+                return true;
+            }
+            Debug.Log("Nee");
+        }
+        return false;
+    }
+
     void SetItem(int slot, Item item) {
-        if (slots.Count <= slot) {
-            slots[slot] = item;
+        if (slot < size) {
+            if (slot < slots.Count) slots[slot] = item;
+            else {
+                slots.Add(item);
+                slotObjects[slots.Count -1].setSprite(0);
+            }
             slotObjects[slot].item = new ItemStack(item.id, 1);
+            
         }
         else AddItem(item);
     }
@@ -59,7 +76,6 @@ public class Hotbar : UIAbstractContainer {
            
             slotObjects[size - 1].item = new ItemStack(item.id, 1);
            
-
             if (slots.Count == 1) {
                 player.highlight.select(slots[selectIndex]);
                 slotObjects[selectIndex].setSprite(2);
@@ -97,15 +113,11 @@ public class Hotbar : UIAbstractContainer {
         }
     }
 
-    public void OnStartDrag() {
+    public void ShowAddSlot() {
         AddUISlot();
         slotObjects[size - 1].setSprite(1);
     }
-    public void OnEndDrag() {
+    public void HideAddSlot() {
         RemoveUISlot(size - 1);
-    }
-
-    public void TryAddItem(UISlot slot, UIItem itemObject) {
-        if (slot == slotObjects[size - 1]) SetItem(slots.Count - 1, ID.items[itemObject.item.itemID]);
     }
 }

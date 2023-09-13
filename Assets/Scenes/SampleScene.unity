@@ -733,6 +733,7 @@ MonoBehaviour:
   cam: {fileID: 963194227}
   debugscreen: {fileID: 811024535}
   highlight: {fileID: 1000598587}
+  hotbar: {fileID: 1168622061}
   inventory: {fileID: 1125158531}
   controller: {fileID: 838488117}
   crosshair: {fileID: 385197508}
@@ -771,7 +772,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 838488115}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

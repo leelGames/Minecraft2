@@ -39,7 +39,7 @@ public class LODHeightMap : MonoBehaviour {
 	
 		meshFilter = gameObject.AddComponent<MeshFilter>();
 		meshRenderer = gameObject.AddComponent<MeshRenderer>();
-		meshRenderer.material = Main.materials[5];
+		meshRenderer.material = Main.materials[6];
 
 		gameObject.transform.SetParent(world.transform);
 		gameObject.transform.position = Position;

@@ -5,15 +5,15 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
-public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler {
+public class UIItem : MonoBehaviour, IPointerDownHandler {
     
     public Player player;
     public Image image;
-    Sprite icon;
     public ItemStack item;
 
     Vector3 position;
     Transform parent;
+    bool dragging = false;
 
     public void SetItem(ItemStack item) {
         this.item = item;
@@ -26,24 +26,27 @@ public class UIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             image.enabled = true;
         }
     }
+    public void Update() {
+       if (dragging) transform.position = Input.mousePosition;
+    }
 
-    public void OnBeginDrag(PointerEventData eventData) {
+    public void BeginDrag() {
+       dragging = true;
        image.raycastTarget = false;
        position = transform.position;
        parent = transform.parent;
        transform.SetParent(transform.root);
-       player.hotbar.OnStartDrag();
     }
 
-    public void OnDrag(PointerEventData eventData) {
-       transform.position = Input.mousePosition;
-    }
-
-    public void OnEndDrag(PointerEventData eventData) {
+    public void EndDrag() {
+        dragging = false;
         image.raycastTarget = true;
         transform.SetParent(parent);
         transform.position = position;
-        player.hotbar.OnEndDrag();
+    }
+
+    public void OnPointerDown(PointerEventData eventData) {
+        player.inventoryM.OnItemClicked(this);
     }
 }
 

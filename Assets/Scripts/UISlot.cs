@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UISlot : MonoBehaviour, IDropHandler {
+public class UISlot : MonoBehaviour, IPointerDownHandler {
     public Image image;
     public UIItem itemObject;
-
+    public Player player;
     public Sprite[] sprites;
 
     public void setSprite(int spriteID) {
@@ -19,7 +19,7 @@ public class UISlot : MonoBehaviour, IDropHandler {
         set {itemObject.SetItem(value);}
     }
 
-    public void OnDrop(PointerEventData eventData) {
-        itemObject.player.hotbar.TryAddItem(this, eventData.pointerDrag.GetComponent<UIItem>());
+    public void OnPointerDown(PointerEventData eventData) {
+        player.inventoryM.OnSlotClicked(this);
     }
 }
