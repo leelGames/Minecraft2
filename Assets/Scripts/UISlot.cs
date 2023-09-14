@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UISlot : MonoBehaviour, IPointerDownHandler {
     public Image image;
     public UIItem itemObject;
-    public Player player;
+    public UIAbstractContainer container;
     public Sprite[] sprites;
 
     public void setSprite(int spriteID) {
@@ -20,6 +20,7 @@ public class UISlot : MonoBehaviour, IPointerDownHandler {
     }
 
     public void OnPointerDown(PointerEventData eventData) {
-        player.inventoryM.OnSlotClicked(this);
+        if (itemObject.item.itemID == 0) container.player.inventoryM.OnSlotClicked(this);
+        else container.player.inventoryM.OnItemClicked(itemObject, this);
     }
 }

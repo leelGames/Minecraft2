@@ -1,21 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Hotbar : UIAbstractContainer {
+public class Hotbar : UIAbstractContainer, IPointerDownHandler {
     List<Item> slots;
+
+    public GameObject plusSlot;
    
     float scroll;
     int selectIndex = 0;
-    int size; //Anzahl slots mit plus
-    //slots.count Anzahl slots ohne plus
-    //slotObjects.count Anzahl aller Slotobjekte
 
     public void Start() {
         slotObjects = new();
         slots = new();
-        size = 0;
     }
 
     void Update() {
@@ -38,43 +37,48 @@ public class Hotbar : UIAbstractContainer {
             }
         }
     }
-    void AddUISlot() {
-        if (slotObjects.Count <= size) {
-            CreateSlot();
-        }
-        else {slotObjects[size].gameObject.SetActive(true);}
-       
-        size++;
-    }
-     public bool TrySetItem(UISlot slot, UIItem itemObject) {
-        for (int i = 0; i < size; i++) {
+
+    public bool TrySetItem(UISlot slot, Item item) {
+        for (int i = 0; i < slots.Count; i++) {
             if (slotObjects[i] == slot) {
-                SetItem(i, ID.items[itemObject.item.itemID]);
+                SetItem(i, item);
                 return true;
             }
-            Debug.Log("Nee");
         }
         return false;
     }
 
-    void SetItem(int slot, Item item) {
-        if (slot < size) {
-            if (slot < slots.Count) slots[slot] = item;
-            else {
-                slots.Add(item);
-                slotObjects[slots.Count -1].setSprite(0);
+    public bool TryRemoveItem(UISlot slot) {
+        for (int i = 0; i < slots.Count; i++) {
+            if (slotObjects[i] == slot) {
+                RemoveItem(i);
+                return true;
             }
-            slotObjects[slot].item = new ItemStack(item.id, 1);
-            
         }
-        else AddItem(item);
+        return false;
     }
-    void AddItem(Item item) {
-        if (size < 20) {
+
+    public void SetItem(int slot, Item item) {
+        if (slot < slots.Count) {
+            slots[slot] = item;
+            slotObjects[slot].item = new ItemStack(item.id, 1);
+            if (slot == selectIndex) player.highlight.select(slots[selectIndex]);
+        }
+        else {
+            AddItem(item);
+        }
+    }
+
+    public void AddItem(Item item) {
+        if (slots.Count < 8) {
             slots.Add(item);
-            AddUISlot();
-           
-            slotObjects[size - 1].item = new ItemStack(item.id, 1);
+            if (slotObjects.Count < slots.Count) {
+                CreateSlot();
+                plusSlot.transform.SetAsLastSibling();
+            }
+            else {slotObjects[slots.Count - 1].gameObject.SetActive(true);}
+          
+            slotObjects[slots.Count - 1].item = new ItemStack(item.id, 1);
            
             if (slots.Count == 1) {
                 player.highlight.select(slots[selectIndex]);
@@ -82,22 +86,18 @@ public class Hotbar : UIAbstractContainer {
             }
         }
     }
-    void RemoveUISlot(int slot) {
-        slotObjects[slot].setSprite(0);
-        slotObjects[slot].gameObject.SetActive(false);
-        size--;
-        //slotObjects[slot].icon = null;
-    }
 
     void RemoveItem(int slot) {
-        if (size > 0) {
+        if (slots.Count > 0) {
             slots[slot] = ID.items[0];
             slotObjects[slot].item = new ItemStack(0, 0);
 
-            if (slot == size - 1) {
+            if (slot == slots.Count - 1) {
                 while (slot >= 0 && slotObjects[slot].item.itemID == 0) {
                     slots.RemoveAt(slot);
-                    RemoveUISlot(slot);
+                    slotObjects[slot].setSprite(0);
+                    slotObjects[slot].gameObject.SetActive(false);
+                    
                     slot--;
                 }
                 selectIndex = slot;
@@ -114,10 +114,13 @@ public class Hotbar : UIAbstractContainer {
     }
 
     public void ShowAddSlot() {
-        AddUISlot();
-        slotObjects[size - 1].setSprite(1);
+       if (slots.Count < 8) plusSlot.SetActive(true);
     }
     public void HideAddSlot() {
-        RemoveUISlot(size - 1);
+      plusSlot.SetActive(false);
+    }
+
+    public void OnPointerDown(PointerEventData eventData) {
+        player.inventoryM.OnHotbarClicked();
     }
 }

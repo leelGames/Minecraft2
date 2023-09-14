@@ -5,13 +5,10 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 
-public class UIItem : MonoBehaviour, IPointerDownHandler {
+public class UIItem : MonoBehaviour {
     
-    public Player player;
     public Image image;
     public ItemStack item;
-
-    Vector3 position;
     Transform parent;
     bool dragging = false;
 
@@ -33,7 +30,6 @@ public class UIItem : MonoBehaviour, IPointerDownHandler {
     public void BeginDrag() {
        dragging = true;
        image.raycastTarget = false;
-       position = transform.position;
        parent = transform.parent;
        transform.SetParent(transform.root);
     }
@@ -42,12 +38,12 @@ public class UIItem : MonoBehaviour, IPointerDownHandler {
         dragging = false;
         image.raycastTarget = true;
         transform.SetParent(parent);
-        transform.position = position;
+        transform.localPosition = Vector3.zero;
     }
 
-    public void OnPointerDown(PointerEventData eventData) {
+    /*public void OnPointerDown(PointerEventData eventData) {
         player.inventoryM.OnItemClicked(this);
-    }
+    }*/
 }
 
 

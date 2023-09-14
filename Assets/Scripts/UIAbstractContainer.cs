@@ -13,18 +13,17 @@ public class UIAbstractContainer : MonoBehaviour {
     protected List<UISlot> slotObjects;
 
     protected void CreateSlot() {
-        UISlot slotObject = Instantiate(slotPrefab).GetComponent<UISlot>();
-        slotObject.transform.SetParent(transform);
-        slotObject.player = player;
+        UISlot slotObject = Instantiate(slotPrefab, transform).GetComponent<UISlot>();
+        slotObject.container = this;
             
-        UIItem itemObject = Instantiate(itemPrefab).GetComponent<UIItem>();
+        UIItem itemObject = Instantiate(itemPrefab, slotObject.transform).GetComponent<UIItem>();
         slotObject.itemObject = itemObject;
-        itemObject.player = player;
-        itemObject.transform.SetParent(slotObject.transform);
 
         slotObjects.Add(slotObject);
     }
-    public void AddSlot() {}
+
+
+    /*public void AddSlot() {}
 
     public void RemoveSlot() {}
 
@@ -34,7 +33,7 @@ public class UIAbstractContainer : MonoBehaviour {
 
     public void MoveItem(UISlot from, UISlot to) {}
 
-    public void CopyItem(UISlot from, UISlot to) {}
+    public void CopyItem(UISlot from, UISlot to) {}*/
 
     //Implementieren, dass referenzen immer stimmen, item kennt slot kennt container
     //Hotbar plus wird eigenes Objekt

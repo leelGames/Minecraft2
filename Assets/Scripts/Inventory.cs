@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Inventory : UIAbstractContainer {
+public class Inventory : UIAbstractContainer, IPointerDownHandler {
     
     public CreativeInventory content;
 
@@ -24,6 +25,10 @@ public class Inventory : UIAbstractContainer {
             }
         }
         content.loaded = true;
+    }
+
+    public void OnPointerDown(PointerEventData eventData) {
+        player.inventoryM.OnCInventoryClicked();
     }
 }
 
