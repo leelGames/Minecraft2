@@ -42,7 +42,7 @@ public class Chunk : AChunk {
 			for (int z = 0; z < VD.ChunkWidth; z++) {
 				genData[x, z] = new ChunkgenData();
 				genData[x, z].TerrainData = world.gen.GenerateTerrain(new Vector2Int(x + Position.x, z + Position.z));
-				for (int y = 0; y <= genData[x, z].terrainheight || y <= world.gen.sealevel; y++) {
+				for (int y = 0; y < VD.ChunkHeight && (y <= genData[x, z].terrainheight || y <= world.gen.sealevel); y++) {
 					if (GetVoxel(x, y, z) == 0) SetVoxel(x, y, z, world.gen.GenerateBlock(new Vector3Int(x, y, z) + Position, genData[x, z].TerrainData));
 				}
 			}
@@ -97,7 +97,7 @@ public class Chunk : AChunk {
 
 		for (int x = 0; x < VD.ChunkWidth; x++) {
 			for (int z = 0; z < VD.ChunkWidth; z++) {
-				for (int y = genData[x, z].minheight - 2; y < genData[x, z].maxheight + 2; y++) {
+				for (int y = genData[x, z].minheight - 3; y < genData[x, z].maxheight + 2; y++) {
 					render.UpdateMesh(e, new Vector3Int(x, y, z));
 				}
 			}

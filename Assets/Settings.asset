@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ffc6b11cb5a3754dad9e3eeba4773d6, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
-  saveToFile: 0
+  saveToFile: 1
   useFile: 0
   materials:
   - {fileID: 2100000, guid: b360882338460cf42ac9cdbbd209a12c, type: 2}
@@ -59,7 +59,7 @@ MonoBehaviour:
   - {fileID: -817118129, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
   - {fileID: -2029775249, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
   - {fileID: -479566269, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
-  colorMap: {fileID: 0}
+  colorMap: {fileID: 2800000, guid: 544749cc3ccc5ec478d1a019633d53d2, type: 2}
   renderDistance: 24
   closeLods: 1
   farLods: 1

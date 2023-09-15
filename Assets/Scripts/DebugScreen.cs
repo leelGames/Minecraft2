@@ -24,8 +24,8 @@ public class DebugScreen : MonoBehaviour {
 			debugText += "PBlock: " + GetBlockInfo(world.player.highlight.blockPlacePos) + "\n";
 			debugText += "Biome: " + BiomeData.biomes[world.GetGenData(world.player.Position).TerrainData.biomeid].name + "\n";
             debugText += "BreakSlap: " + world.player.highlight.bslab + "PlaceSlap: " + world.player.highlight.pslab + "\n";
-            debugText += world.GetBounds(world.player.highlight.breakPos).min.ToString("F10") + " " + world.GetBounds(world.player.highlight.breakPos).max.ToString("F10");
-            debugText += world.IsGrounded(world.player.highlight.breakPos);
+            //debugText += world.GetBounds(world.player.highlight.breakPos).min.ToString("F10") + " " + world.GetBounds(world.player.highlight.breakPos).max.ToString("F10");
+            //debugText += world.IsGrounded(world.player.highlight.breakPos);
 			text.text = debugText;
         }
         //Anf�llig f�r Exceptions
