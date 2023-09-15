@@ -108,10 +108,10 @@ public class Chunk : AChunk {
 	public void SetLod(int lod) {
 		if (lod != -1) level = lod;
 		if (lod == 0) {
-			meshRenderer.materials = new Material[] { Main.materials[0], Main.materials[1], Main.materials[2] };
+			meshRenderer.materials = new Material[] { Main.materials[0], Main.materials[1], Main.materials[2], Main.materials[3] };
 			meshFilter.mesh = render.mesh;
 		} else {
-			meshRenderer.materials = new Material[] { Main.materials[3], Main.materials[4] };
+			meshRenderer.materials = new Material[] { Main.materials[4], Main.materials[5] };
 			meshFilter.mesh = render.lodmesh;
 		}
 	}

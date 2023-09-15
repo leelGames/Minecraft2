@@ -135,7 +135,7 @@ public class VoxelRenderer {
 			else if (block.shaderType == SMode.UVAlpha) transparentTris.Add(value);
 			else if (block.shaderType == SMode.Water) waterTris.Add(value);
 		} else {
-			if (block.shaderType == SMode.UVAlpha) transparentTris.Add(value);
+			if (block.shaderType == SMode.Water) transparentTris.Add(value);
 			else terrainTris.Add(value);
 		}
 

@@ -25,12 +25,12 @@ public static class Main {
         colorMap = s.colorMap;
         itemTextures = s.itemTextures;
 		Main.s = s;
-		RenderSettings.fog = Main.s.fog;
+		RenderSettings.fog = s.fog;
         RenderSettings.fogMode = FogMode.Linear;
-		RenderSettings.fogColor = Main.s.fogColor;
-		RenderSettings.fogStartDistance = (Main.s.lodrenderDistance / 2 + Main.s.fogstart) * VD.LODWidth;
-		RenderSettings.fogEndDistance = (Main.s.lodrenderDistance / 2 + Main.s.fogend) * VD.LODWidth;
-        QualitySettings.shadowDistance = Main.s.renderDistance * VD.ChunkWidth;
+		RenderSettings.fogColor = s.fogColor;
+		RenderSettings.fogStartDistance = (s.lodrenderDistance / 2 + s.fogstart) * VD.LODWidth;
+		RenderSettings.fogEndDistance = (s.lodrenderDistance / 2 + s.fogend) * VD.LODWidth;
+        QualitySettings.shadowDistance = (s.renderDistance  * VD.ChunkWidth - 1); /// (s.closeLods? 2 : 1); fix wasser schatten
         /*QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = -1;*/
         InitMeshes();
