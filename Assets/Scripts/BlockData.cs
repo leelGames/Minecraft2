@@ -74,9 +74,8 @@ public class Block {
 	public float textureScale;
 
     public CMode connectMode;
-    public RMode rotMode;
-    public int slabType;
-   // public bool mode;
+    public RMode rotMode; //Info für Higlight zum platzieren, speichert dir24 Data
+    public int slabType; //Speichert slabID
     public BType type;
     public SMode shaderType;
 
@@ -86,7 +85,7 @@ public class Block {
     public Color32 color;		//Farbe für LOD renderer
     public string[] dataSize;	//Zusätzliche Daten mit bezeichnung (StructureId...)
 
-	public bool isTransparent;			//   
+	public bool isTransparent;			//Wichtig Für Culling
     public float density;				//Höherer Wert überschreibt niedrigen Wert, Rigidbody und Wasser Vehalten, Explosionswiderstand
     public float reactivity;			//Brennbarkeit, Explosionswiderstand
 
@@ -111,7 +110,7 @@ public class Block {
 	
 
 	public static Block NewBlock(string blockName, int texture, SMode shaderMode, bool isTransparent, byte slabs) {
-        return new Block(blockName, texture, 1, 0, slabs, BType.Voxel, CMode.None, RMode.None, SMode.UVCutoff, true, isTransparent, new string[] {"SlabID"});
+        return new Block(blockName, texture, 1, 0, slabs, BType.Voxel, CMode.None, RMode.None, SMode.UVCutoff, true, isTransparent, slabs == 0 ? new string[] {"SlabID"} : new string[0]);
     }
     public static Block NewTerrain(string blockName, int texture) {
         return new Block(blockName, texture, 4, 0, 0, BType.Terrain, CMode.None, RMode.None, SMode.Triplanar, true, false, new string[] { "IsFlat" });

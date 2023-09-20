@@ -23,12 +23,12 @@ public class DebugScreen : MonoBehaviour {
             debugText += "BBlock: " + GetBlockInfo(world.player.highlight.breakPos) + "\n";
 			debugText += "PBlock: " + GetBlockInfo(world.player.highlight.blockPlacePos) + "\n";
 			debugText += "Biome: " + BiomeData.biomes[world.GetGenData(world.player.Position).TerrainData.biomeid].name + "\n";
-            debugText += "BreakSlap: " + world.player.highlight.bslab + "PlaceSlap: " + world.player.highlight.pslab + "\n";
+            debugText += "BreakSlap: " + world.player.highlight.bslab + " PlaceSlap: " + world.player.highlight.pslab + "\n";
             //debugText += world.GetBounds(world.player.highlight.breakPos).min.ToString("F10") + " " + world.GetBounds(world.player.highlight.breakPos).max.ToString("F10");
             //debugText += world.IsGrounded(world.player.highlight.breakPos);
 			text.text = debugText;
         }
-        //Anf�llig f�r Exceptions
+        //Anfällig für Exceptions
         catch (Exception e) { text.text = "Could not read all Debug Data:\n" + e.Message; }
         
         //fps berechnen
@@ -43,9 +43,11 @@ public class DebugScreen : MonoBehaviour {
     string GetBlockInfo(Vector3Int pos) {
 		VoxelData block = world.GetVoxelData(pos);
         string info = block.block.id + " " + block.block.blockName + " ";
-        if (block.block.dataSize.Length > 0) info += block.block.dataSize[0] + ": " + block.mainAtr + " ";
-        for (int i = 1; i < block.block.dataSize.Length; i++) {
-            info += block.block.dataSize[i] + ": " + block.data[i] + " ";
+        if (block.block.dataSize.Length == 1) info += block.block.dataSize[0] + ": " + block.mainAtr + " ";
+        else if (block.block.dataSize.Length > 1) {
+            for (int i = 0; i < block.block.dataSize.Length; i++) {
+                info += block.block.dataSize[i] + ": " + block.data[i] + " ";
+            }
         }
         return info + block.flag;
 	}

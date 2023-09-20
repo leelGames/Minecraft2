@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class VoxelRenderer {
 	readonly AChunk chunk;
@@ -36,7 +37,7 @@ public class VoxelRenderer {
 
 	public void UpdateMesh(UpdateEvent e, Vector3Int pos) {
 		if (e.lod == 0) {
-			switch (chunk.GetVoxel(pos).type) {
+			switch (chunk.GetBlock(pos).type) {
 				case BType.Air: return;
 				case BType.Liquid: GetMeshLiquid(pos, e); return;
 				case BType.Terrain: GetMeshTerrain(pos, e); return;
@@ -46,7 +47,7 @@ public class VoxelRenderer {
 				case BType.Slope: GetMeshSlope(pos, e); return;
 			}
 		} else {
-			switch (chunk.GetVoxel(pos).type) {
+			switch (chunk.GetBlock(pos).type) {
 				case BType.Air: return;
 				case BType.Liquid: GetMeshBounds(pos, e); return;
 				case BType.Terrain: GetMeshTerrain(pos, e); return;
@@ -145,7 +146,7 @@ public class VoxelRenderer {
 	}
 
 	public int GetMeshIndex(Vector3Int pos) {
-		Block thisBlock = chunk.GetVoxel(pos);
+		Block thisBlock = chunk.GetBlock(pos);
 		int thisAtr = chunk.GetVoxelAtr(pos);
 
 		//Fügt gespeicherte Ecken und Dreiecke hinzu
@@ -189,7 +190,7 @@ public class VoxelRenderer {
 	}
 
 	protected void GetMeshCustom(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetVoxel(pos);
+		Block thisBlock = chunk.GetBlock(pos);
 		int thisAtr = chunk.GetVoxelAtr(pos);
 		Bounds b = chunk.GetBounds(pos);
 
@@ -250,7 +251,7 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshVoxel(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetVoxel(pos);
+		Block thisBlock = chunk.GetBlock(pos);
 		Bounds b = chunk.GetBounds(pos);
 		
 		for (int i = 0; i < 6; i++) {
@@ -270,13 +271,12 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshSlope(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetVoxel(pos);
+		Block thisBlock = chunk.GetBlock(pos);
 		Bounds b = chunk.GetBounds(pos);
-	
-		VoxelData thisAtr = chunk.GetVoxelData(pos);
+
 		int dir;
-		if (thisBlock.slabType != 0) dir = thisAtr.data[1] / 2;
-		else dir = thisAtr.mainAtr / 2;
+		if (thisBlock.slabType != 0) dir = chunk.GetVoxelData(pos)[1] / 2;
+		else dir = chunk.GetVoxelAtr(pos) / 2;
 
 		//Fügt gespeicherte Ecken und Dreiecke hinzu
 		for (int i = 0; i < VD.slopeTris.Length; i++) {
@@ -286,7 +286,7 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshTerrain(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetVoxel(pos);
+		Block thisBlock = chunk.GetBlock(pos);
 		Block check;
 		byte marchIndex = 0;
 
@@ -326,7 +326,7 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshRounded(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetVoxel(pos);
+		Block thisBlock = chunk.GetBlock(pos);
 		Block check;
 		byte marchIndex;
 
@@ -364,7 +364,7 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshLiquid(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetVoxel(pos);
+		Block thisBlock = chunk.GetBlock(pos);
 		int height;
 
 		for (int i = 0; i < 6; i++) {
@@ -409,7 +409,7 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshBounds(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetVoxel(pos);
+		Block thisBlock = chunk.GetBlock(pos);
 		Bounds b = chunk.GetBounds(pos);
 		Block nextBlock;
 
@@ -429,7 +429,7 @@ public class VoxelRenderer {
 		}
 	}
 
-	//F�r implementierung von rotierung
+	//Für implementierung von rotierung
 	public static Vector3 RotateVert(Vector3 vert, int dir) {
 		Vector3 center = new(0.5f, 0.5f, 0.5f);
 		return Quaternion.Euler(VD.dirToRot2[dir]) * (vert - center) + center;
@@ -442,4 +442,47 @@ public class VoxelRenderer {
 		Vector3 center = new(0.5f, 0.5f, 0.5f);
 		return rotation * (vert + center) - center;
 	}
+
+	//ToDo VoexelEntity rotations
+
+	public static int rotateDirBlock(int dir, Quaternion rotation) {
+		return dir;
+	}
+	public static int rotateSlabBlock(int slabID, Quaternion rotation) {
+		return slabID;
+	}
+	public static byte[] rotateCSlabBlock(int slabID, int dir, Quaternion rotation) {
+		return new byte[] {(byte)slabID, (byte)dir};
+	}
+
+	public static VoxelData rotateVoxel(VoxelData block, Quaternion rotation) {
+		if (block.block.rotMode == RMode.None && block.block.slabType == 0) return block;
+		else if(block.block.rotMode != RMode.None) return new VoxelData(block.block, rotateDirBlock(block.mainAtr, rotation), new byte[0], false);
+		else if(block.block.slabType != 0) return new VoxelData(block.block, rotateSlabBlock(block.mainAtr, rotation), new byte[0], false);
+		else return new VoxelData(block.block, 0, rotateCSlabBlock(block.data[0], block.data[1], rotation), false);
+	}
+
+	/*int RotateDir(int dir, Quaternion rot) {
+		
+		Quaternion rotation = Quaternion.Euler(VD.dirToRot2[dir]) * rot;
+		//fix scheis rundungsfeler
+		rotation = Quaternion.Euler(Vector3Int.RoundToInt(rotation.eulerAngles));
+		
+		for (int i = 0; i < VD.dirToRot2.Length; i++) {
+		
+			if (rotation == Quaternion.Euler(VD.dirToRot2[i])) return i;
+		}
+		Debug.Log("errör");
+		return 0;
+		/*int[] yt = new int[] { 0, 2, 1, 3 };
+		int[,] xzt = new int[,] {
+			{ 0, 4, 1, 5 },
+			{ 2, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 3, 0, 0, 0 }
+		};
+		//Debug.Log(rotation + " " + (xzt[rotation.z / 90, rotation.x / 90] * 4 + yt[rotation.y / 90]));
+		return xzt[rotation.z / 90, rotation.x / 90] * 4 + yt[rotation.y / 90];*/
+		
+	//}
 }

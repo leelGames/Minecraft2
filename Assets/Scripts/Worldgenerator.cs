@@ -21,7 +21,7 @@ public class Worldgen {
 		Debug.Log(seed);
 	}
 
-	//Terrainhöhe eines punkts bestimmen
+	//TerrainhÃ¶he eines punkts bestimmen
 	public TerrainData GenerateTerrain(Vector2Int pos) {
         float max = 0f;
         int maxIndex = 0;
@@ -29,7 +29,7 @@ public class Worldgen {
         float weight;
         float height;
 
-        //Für alle Biome eine gewichtung mit Noise berechnen
+        //FÃ¼r alle Biome eine gewichtung mit Noise berechnen
         for (int i = 0; i < BiomeData.biomes.Length; i++) {
             weight = Get2Dperlin(pos, 0.02f, i);
 
@@ -37,7 +37,7 @@ public class Worldgen {
                 max = weight;
                 maxIndex = i;
             }
-            //Terrain höhe ausmitteln (damit keine harten übergänge)
+            //Terrain hÃ¶he ausmitteln (damit keine harten Ã¼bergÃ¤nge)
             height = weight * weight * GetTerrainHeight(BiomeData.biomes[i], pos);
             finalHeight += height;
 
@@ -46,7 +46,7 @@ public class Worldgen {
         return new TerrainData(Mathf.FloorToInt(finalHeight), (byte) maxIndex);
     }
 
-    //Terainhöhe durch zwei Layer Noise berechnen
+    //TerainhÃ¶he durch zwei Layer Noise berechnen
     public float GetTerrainHeight(Biome biome, Vector2Int pos) {
         pos.x /= biome.terrain.stretch;
         return (Get2Dperlin(pos, biome.terrain.scaleL1, -1) * biome.terrain.heightL1 + Get2Dperlin(pos, biome.terrain.scaleL2, -2) * biome.terrain.heightL2);
@@ -78,7 +78,7 @@ public class Worldgen {
 	}
 
     public ushort GenerateBlock(Vector3Int pos, TerrainData data) {
-		//Blöcke nach höhe generieren
+		//BlÃ¶cke nach hÃ¶he generieren
 		Biome biome = BiomeData.biomes[data.biomeid];
 		ushort blockID;
 
@@ -104,25 +104,25 @@ public class Worldgen {
 		if (data.terrainheight < sealevel) return (byte) treeID;
 		Vector3Int pos = new(p.x, data.terrainheight, p.y);
 		Biome biome = BiomeData.biomes[data.biomeid];
-		Block thisBlock = world.GetVoxel(pos);
+		int thisBlock = world.GetVoxel(pos);
 
 		if (Get2Dperlin(new Vector2(pos.x, pos.z), biome.type.treeZoneScale, -3) > biome.type.treeZoneThresh) {
 			//Pfanzen (nur stamm)
 			foreach (Plant plant in biome.type.plants) {
 				if (Get2Dperlin(new Vector2(pos.x, pos.z), plant.plantPlacementScale, plant.block) > plant.plantPlacementThresh) {
-					if (thisBlock.id == plant.groundBlock && world.IsGrounded(pos)) {
+					if (thisBlock == plant.groundBlock && world.IsGrounded(pos)) {
 						int height = (int)(plant.maxHeight * Get2Dperlin(new Vector2(pos.x, pos.z), 5f, plant.groundBlock));
 						for (int i = 0; i < height; i++) {
 							pos.y++;
-							world.SetVoxelFast(pos, plant.block, 0);
+							world.SetVoxel(pos, plant.block, 0);
 						}
 					}
 				}
 			}
-			//Bäume
+			//Bï¿½ume
 			foreach (Tree tree in biome.type.trees) {
 				if (Get2Dperlin(new Vector2(pos.x, pos.z), tree.treePlacementScale, tree.leafBlock) > tree.treePlacementThresh) {
-					if (thisBlock.id == tree.groundBlock && world.IsGrounded(pos)) {
+					if (thisBlock == tree.groundBlock && world.IsGrounded(pos)) {
 						int height = (int)(tree.maxTreeHeight * Get2Dperlin(new Vector2(pos.x, pos.z), 5f, tree.stemBlock) + tree.minTreeHeight);
 						GenerateTree(tree, pos, height);
 						if (treeID == 0x001F) treeID = 0;
@@ -142,9 +142,9 @@ public class Worldgen {
 						for (float y = -size; y <= size; y++) {
 							for (float z = -size; z <= size; z++) {
 								float dist = Mathf.Sqrt(x * x + y * y + z * z);
-								if (dist < size && world.GetVoxel(pos + Vector3Int.RoundToInt(new Vector3(x, y, z))).type == BType.Air) {
+								if (dist < size && world.GetVoxel(pos + Vector3Int.RoundToInt(new Vector3(x, y, z))) == 0) {
 									if (Get3Dperlin(pos + new Vector3(x, y, z), 0.5f, rock.block) > dist / size * 0.75f) {
-										world.SetVoxelFast(pos + Vector3Int.RoundToInt(new Vector3(x, y, z)), rock.block, 0);
+										world.SetVoxel(pos + Vector3Int.RoundToInt(new Vector3(x, y, z)), rock.block, 0);
 									}
 								}
 							}
@@ -155,7 +155,7 @@ public class Worldgen {
 		}
 		return (byte) treeID;
 	}
-	//Rekursives Generierung von Ästen
+	//Rekursives Generierung von Ã¤sten
 	void RecursiveTree(Tree tree, Vector3Int pos, int size, int dir) {
 		int newdir;
 		int leavesize = size / 3 + 2;
@@ -170,16 +170,16 @@ public class Worldgen {
 			}
 			if (Get3DRandom(pos, size - i) < (size - i) / (2.5f * size)) { RecursiveTree(tree, pos + VD.dirs[newdir], size / 2, newdir); }
 			pos += VD.dirs[newdir];
-			world.SetVoxelFast(pos, tree.branchBlock, newdir * 4);
+			world.SetVoxel(pos, tree.branchBlock, newdir * 4);
 		}
-		//Blätter
+		//Blï¿½tter
 		for (int x = -leavesize; x <= leavesize; x++) {
 			for (int y = -leavesize; y <= leavesize; y++) {
 				for (int z = -leavesize; z <= leavesize; z++) {
 					float dist = Mathf.Sqrt(x * x + y * y + z * z);
-					if (dist < leavesize && world.GetVoxel(pos + new Vector3Int(x, y, z)).type == BType.Air) {
+					if (dist < leavesize && world.GetVoxel(pos + new Vector3Int(x, y, z)) == 0) {
 						if (Get3Dperlin(pos + new Vector3(x, y, z), 0.5f, tree.branchBlock) > dist / leavesize * 0.75f) {
-							world.SetVoxelFast(pos + new Vector3Int(x, y, z), tree.leafBlock, treeID);
+							world.SetVoxel(pos + new Vector3Int(x, y, z), tree.leafBlock, treeID);
 						}
 					}
 				}
@@ -195,9 +195,9 @@ public class Worldgen {
 			if (Get3DRandom(pos, -i) < i / (2f * height)) {	
 				dir = Range(pos, 2, 5, - (i + 1));
 				RecursiveTree(tree, pos + VD.dirs[dir], i, dir);
-				world.SetVoxelFast(pos + VD.dirs[dir], tree.branchBlock, dir * 4);	
+				world.SetVoxel(pos + VD.dirs[dir], tree.branchBlock, dir * 4);	
 			}
-			world.SetVoxelFast(pos, tree.stemBlock, 4);
+			world.SetVoxel(pos, tree.stemBlock, 4);
 		}
 		RecursiveTree(tree, pos, height / 2, 1);
 	}

@@ -78,7 +78,7 @@ public class DynamicWater : Block {
 			}
 
 			for (int j = 0; j < 4; j++) {						//!
-				if (volumes[j] > 0 && volumes[j] <= layers && world.GetVoxel(pos + VD.dirs[j + 2]).slabType == 0) world.SetVoxel(pos + VD.dirs[j + 2], id, volumes[j]);
+				if (volumes[j] > 0 && volumes[j] <= layers && world.GetBlock(pos + VD.dirs[j + 2]).slabType == 0) world.SetVoxel(pos + VD.dirs[j + 2], id, volumes[j]);
 			}
 		}
 		if (volumedown > 0) world.SetVoxel(pos + Vector3Int.down, id, volumedown);

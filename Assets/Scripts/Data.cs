@@ -9,7 +9,7 @@ public static class VD {
 		get { return subChunks * ChunkWidth; }
 	}
 
-	//Vereinfachung der Higligtcodes für slabs mit vorgerechneten vectoren
+	//Vereinfachung der Higligtcodes fÃ¼r slabs mit vorgerechneten vectoren
 	public static readonly float third = 1.0f / 3.0f;
 	public static readonly Vector3[,,] highlightVectors = new Vector3[2, 3, 3] {
 		{
@@ -25,7 +25,7 @@ public static class VD {
 
 	//allgemeine Reihenfolge:  unten(o), oben(u), links(l), rechts(r), vorne(v), hinten(h)
 
-	//Speichert Bounds aller möglichen Slabs
+	//Speichert Bounds aller mÃ¶glichen Slabs
 	public static readonly Bounds[] slabBounds = new Bounds[] {
 		new Bounds(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(1f, 1f, 1f)), //Null
 
@@ -59,10 +59,10 @@ public static class VD {
 		new Bounds(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(1f, 1f, 1f)), //Full 17
 	};
 
-	//Speichert Typ-ID der Blöcke in Slabdata
+	//Speichert Typ-ID der BlÃ¶cke in Slabdata
 	public static int[] slabDataToID = new int[] {-1, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5};
 
-	//Definiert welcher Slab-Typ platziert wird abhängt von aktuellem Slabtyp (x) und highlight Position (y)
+	//Definiert welcher Slab-Typ platziert wird abhÃ¤ngt von aktuellem Slabtyp (x) und highlight Position (y)
 	public static int[,] halfSlabCombiner = new int[4, 4] {
 		//place
 		//leer unten oben voll
@@ -85,7 +85,7 @@ public static class VD {
 		{ -1, 0, 1, -1, 3, 1, 3 }, //oben
 	};
 
-	//Definert die Position der Ecken eines Würfels
+	//Definert die Position der Ecken eines WÃ¼rfels
 	public static readonly Vector3Int[] voxelVerts = new Vector3Int[8] {
 		new Vector3Int(0,0,0),
 		new Vector3Int(1,0,0),
@@ -114,7 +114,7 @@ public static class VD {
 		{ 6, 5, 4, 7, 2, 1, 0, 3},
 		{ 1, 2, 3, 0, 5, 6, 7, 4},
 	};
-	//Rechnet 90Grad RotierungsID in Euler Rotation um (unzuverlässig)
+	//Rechnet 90Grad RotierungsID in Euler Rotation um (unzuverlÃ¤ssig)
 	// 0 oben(O U R L)  4 unten(O U R L) 8 rechts(O U R L) 12 links(O U R L) 16 hinten(O U R L) 20 vorne(O U R L) 
 
 	public static readonly Vector3Int[] dirToRot2 = new Vector3Int[24] {
@@ -176,7 +176,7 @@ public static class VD {
 		new Vector3(270f, 0f, 90f),
 	};
 
-	//Definiert welche Vertices zu welchem Face gehören (für verschiebung von Faces)
+	//Definiert welche Vertices zu welchem Face gehÃ¶ren (fÃ¼r verschiebung von Faces)
 	public static readonly int[,] voxelFaces = new int[6, 8] {
 		{ 0, 0, -1, -1, 0, 0, -1, -1}, //u
 		{ -1, -1, 0, 0, -1, -1, 0, 0}, //o
@@ -188,7 +188,7 @@ public static class VD {
 	};
 
 
-    //Definert in welcher Reihenfolge die Ecken verbunden werden müssen um eine quadratische Fläche aus zwei Dreiecken zu erzeugen
+    //Definert in welcher Reihenfolge die Ecken verbunden werden mÃ¼ssen um eine quadratische FlÃ¤che aus zwei Dreiecken zu erzeugen
     public static readonly int[] vertexTris = new int[6] {0, 1, 2, 2, 1, 3};
     
     public static readonly int[,] voxelTris = new int[6, 4] {
@@ -200,13 +200,13 @@ public static class VD {
 		{5, 6, 4, 7}, //h
     };
 	
-	//Definiert Slope Mesh abhängig von VoxelVerts
+	//Definiert Slope Mesh abhÃ¤ngig von VoxelVerts
 	public static readonly int[] slopeTris = new int[] { 1, 5, 0, 0, 5, 4,  0, 3, 1, 1, 3, 2,  1, 2, 5,  4, 3, 0,  2, 3, 5, 5, 3, 4};
 	public static readonly int[] slopeUVs = new int[]  { 0, 1, 2, 2, 1, 3,  0, 1, 2, 2, 1, 3,  0, 1, 2,  0, 3, 2,  2, 0, 3, 3, 0, 1};
 
 	//Rotierung von Slopes
 	public static readonly int[] slopeDirs = new int[24] {
-		//Tabelle sehr aufwändig nicht anfassen!!
+		//Tabelle sehr aufwÃ¤ndig nicht anfassen!!
 		6, 7, 4, 5,
 		2, 3, 0, 1,
 		11, 10, 4, 0,
@@ -215,7 +215,7 @@ public static class VD {
 		3, 7, 10, 8,
 	};
 
-	//Für berechning von dir12
+	//FÃ¼r berechning von dir12
 	public static readonly Vector2[] dir12Table = new Vector2[] {
 		new Vector2(0.5f, 0f),
 		new Vector2(0.5f, 1f),
@@ -243,7 +243,7 @@ public static class VD {
         new Vector2Int(1, 1),
     };
 
-	//Für verbindendes Wasser
+	//FÃ¼r verbindendes Wasser
 	public static readonly int[,] waterHeight = new int[8,8] {
 		{ 0,0,1,1,0,0,0,0 },
 		{ 0,0,0,1,0,0,0,0 },
@@ -258,7 +258,7 @@ public static class VD {
 
 	//Definiert alle Richtungen wo ein benachbarter Block angrenzt
 	public static readonly Vector3Int[] dirs = new Vector3Int[26] {
-		//Flächen
+		//FlÃ¤chen
 		new Vector3Int(0,-1, 0),//u
 		new Vector3Int(0, 1, 0),//o
 		new Vector3Int(-1,0, 0),//l //Y0 Zone Start: 2
@@ -326,7 +326,7 @@ public static class VD {
 		{0,1},{1,2},{3,2},{0,3},{4,5},{5,6},{7,6},{4,7},{0,4},{1,5},{2,6},{3,7}
 	};
 
-	//Triangulationstabelle für alle möglichen Terrain Meshes
+	//Triangulationstabelle fÃ¼r alle mÃ¶glichen Terrain Meshes
 	public static readonly sbyte[,] tTriangles = new sbyte[256, 16] {
 		{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
 		{0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},

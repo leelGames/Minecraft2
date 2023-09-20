@@ -48,10 +48,8 @@ public class VoxelEntity : AChunk {
 		ve.Init(world, min, max + Vector3Int.one, voxels.Length);
 		ve.Active = false;
 
-		VoxelData v;
 		for (int i = 0; i < voxels.Length; i++) {
-			v = world.GetVoxelData(voxels[i]);
-			ve.SetVoxel(voxels[i] - min, v.block.id, v.mainAtr);
+			ve.CopyVoxel(voxels[i] - min, world.GetVoxelData(voxels[i]));
 		}
 
 		UpdateEvent e = new(Vector2Int.zero, 0, false, true);
@@ -90,15 +88,18 @@ public class VoxelEntity : AChunk {
 
 	void Place() {
 		Vector3Int pos;
+		Vector3Int p;
 		for (int x = 0; x < width.x; x++) {
 			for (int z = 0; z < width.z; z++) {
 				for (int y = 0; y < width.y; y++) {
 					if (BD.blocks[GetVoxel(x, y, z)].type != BType.Air) {
 						pos = newposition + Vector3Int.RoundToInt(VoxelRenderer.RotateVert(new Vector3(x, y, z), newrotation));
-						if (world.GetVoxel(pos).type != BType.Terrain) {
-							world.SetVoxel(pos, GetVoxel(x, y, z), BD.blocks[GetVoxel(x, y, z)].rotMode != RMode.None ? RotateDir(GetVoxelAtr(x, y, z), newrotation) : 0);
+						if (world.GetBlock(pos).type != BType.Terrain) {
+							p = new Vector3Int(x, y, z);
+							world.CopyVoxel(pos, VoxelRenderer.rotateVoxel(new VoxelData(GetBlock(p), GetVoxelAtr(p), GetVoxelData(p), false), newrotation));
+
+							//world.SetVoxel(pos, GetVoxel(x, y, z), BD.blocks[GetVoxel(x, y, z)].rotMode != RMode.None ? RotateDir(GetVoxelAtr(x, y, z), newrotation) : 0);
 							world.UpdateBlockFast(pos);
-							//world.threads.chunksToUpdate.AddBuffer(new UpdateEvent(world.GetChunkCoord(pos), 0, false, true));
 						}
 					}
 				}
@@ -108,12 +109,10 @@ public class VoxelEntity : AChunk {
 	}
 
 	public void Fill() {
-		VoxelData block;
 		for (int x = 0; x < width.x; x++) {
 			for (int z = 0; z < width.z; z++) {
 				for (int y = 0; y < width.y; y++) {
-					block = world.GetVoxelData(pos + new Vector3Int(x, y, z));
-					SetVoxel(new Vector3Int(x, y, z), block.block.id, block.mainAtr);
+					CopyVoxel(new Vector3Int(x, y, z), world.GetVoxelData(pos + new Vector3Int(x, y, z)));
 				}
 			}
 		}
@@ -133,7 +132,7 @@ public class VoxelEntity : AChunk {
 		if (!IsVoxelInChunk(pos)) {
 			return BD.blocks[0];
 		}
-		return GetVoxel(pos);
+		return GetBlock(pos);
 	}
 
 	public override int CheckBlockAtr(Vector3Int pos) {
@@ -152,29 +151,5 @@ public class VoxelEntity : AChunk {
 
 	Vector3Int GetRotation(Vector3 rot) {
 		return new Vector3Int(Mathf.RoundToInt(rot.x / 90) * 90, Mathf.RoundToInt(rot.y / 90) * 90, Mathf.RoundToInt(rot.z / 90) * 90);
-	}
-
-	int RotateDir(int dir, Quaternion rot) {
-		
-		Quaternion rotation = Quaternion.Euler(VD.dirToRot2[dir]) * rot;
-		//fix scheis rundungsfeler
-		rotation = Quaternion.Euler(Vector3Int.RoundToInt(rotation.eulerAngles));
-		
-		for (int i = 0; i < VD.dirToRot2.Length; i++) {
-		
-			if (rotation == Quaternion.Euler(VD.dirToRot2[i])) return i;
-		}
-		Debug.Log("errör");
-		return 0;
-		/*int[] yt = new int[] { 0, 2, 1, 3 };
-		int[,] xzt = new int[,] {
-			{ 0, 4, 1, 5 },
-			{ 2, 0, 0, 0 },
-			{ 0, 0, 0, 0 },
-			{ 3, 0, 0, 0 }
-		};
-		//Debug.Log(rotation + " " + (xzt[rotation.z / 90, rotation.x / 90] * 4 + yt[rotation.y / 90]));
-		return xzt[rotation.z / 90, rotation.x / 90] * 4 + yt[rotation.y / 90];*/
-		
 	}
 }

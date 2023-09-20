@@ -52,13 +52,13 @@ public abstract class AChunk : MonoBehaviour{
 	}
 
 	public Bounds GetBounds(Vector3Int pos) {
-		Block block = GetVoxel(pos);
+		Block block = GetBlock(pos);
 		
 		if (block.type == BType.Voxel) { 
 			return VD.slabBounds[GetVoxelAtr(pos)];
 		}
 		if (block.type == BType.Slope && block.slabType != 0) {
-			return VD.slabBounds[GetVoxelData(pos).data[0]];
+			return VD.slabBounds[GetVoxelData(pos)[0]];
 		}
 		if (block.type == BType.Custom) {
 			Bounds b = Main.meshTable[block.meshID][render.GetMeshIndex(pos)].bounds;
@@ -96,7 +96,10 @@ public abstract class AChunk : MonoBehaviour{
 	protected int GetVoxel(int x, int y, int z) {
 		return voxelMap[x, y, z] & 0x03FF;
 	}
-	public Block GetVoxel(Vector3Int pos) {
+	public int GetVoxel(Vector3Int pos) {
+		return voxelMap[pos.x, pos.y, pos.z] & 0x03FF; 
+	}
+	public Block GetBlock(Vector3Int pos) {
 		return BD.blocks[voxelMap[pos.x, pos.y, pos.z] & 0x03FF]; 
 	}
 	public int GetVoxelAtr(int x, int y, int z) {
@@ -123,78 +126,68 @@ public abstract class AChunk : MonoBehaviour{
 	public bool GetFlag(Vector3Int pos) {
 		return (voxelMap[pos.x, pos.y, pos.z] & 0x0400) == 0x400;
 	}
-
-	public VoxelData GetVoxelData(Vector3Int pos) {
-		Block block = GetVoxel(pos);
+	//rename to getData
+	public byte[] GetVoxelData(Vector3Int pos) {
+		Block block = GetBlock(pos);
 		int atr = GetVoxelAtr(pos);
-		bool flag = GetFlag(pos);
-		if (block.dataSize.Length == 0) return new VoxelData(block, 0, flag);
-		else if (block.dataSize.Length == 1) return new VoxelData(block, atr, flag);
+	
+		if (block.dataSize.Length == 0) return new byte[0];
+		else if (block.dataSize.Length == 1) return new byte[] {(byte) atr};
 		else {
-			int p = PosToInt(pos);
-			for (int i = atr; i < dataMap.Count; i += 0x001F) {
-				if (dataMap[i].pos == p) { return new VoxelData(block, atr, dataMap[i].data, flag); }
+			int hash = chunkHash(pos);
+			for (int i = atr; i < dataMap.Count; i += 32) {
+				if (dataMap[i].hash == hash) { return dataMap[i].data; }
 			}
 			Debug.Log("Missing Blockdata at " + pos.ToString());
-			return new VoxelData(block, atr, new byte[block.dataSize.Length], flag);
+			return new byte[0];
 		}
 	}
+	//public VoxelData GetVoxelData(Vector3Int pos) {}
 
-	public void SetVoxelData(Vector3Int pos, byte[] data) {
-		int p = PosToInt(pos);
-		if (GetVoxel(pos).dataSize.Length <= 1) {Debug.Log("Blockdata Not Valid at: " + pos.ToString()); return;}
-		else {
-			for (int i = GetVoxelAtr(pos); i < dataMap.Count; i += 0x001F) {
-				if (dataMap[i].pos == p) { dataMap[i] = new ChunkData(p, data); return; }
-			}
-			SetVoxel(pos, GetVoxel(pos).id, dataMap.Count % 0x001F);
-			dataMap.Add(new ChunkData(p, data));
-		}
-	}
-	public void SetVoxelData(Vector3Int pos, int index, byte value) {
-		int p = PosToInt(pos);
-		for (int i = GetVoxelAtr(pos); i < dataMap.Count; i += 0x011F) {
-			if (dataMap[i].pos == p) { dataMap[i].Set(index, value); return; }
-		}
+	public void SetVoxel(Vector3Int pos, int id, byte[] data) {
+		int hash = chunkHash(pos);
+		if (data == null || data.Length < 2) Debug.Log("Invalid Chunk Data");
+		
+		SetVoxel(pos, id, dataMap.Count % 32);
+		dataMap.Add(new ChunkData(hash, data));
 	}
 
-	public void ClearVoxelData(Vector3Int pos) {
-		int p = PosToInt(pos);
+	public void CopyVoxel(Vector3Int pos, VoxelData data) {
+		int hash = chunkHash(pos);
+		
+		if (data.block.dataSize.Length == 0) SetVoxel(pos, data.block.id);
+		else if (data.block.dataSize.Length == 1) SetVoxel(pos, data.block.id, data.mainAtr);
+		else SetVoxel(pos, data.block.id, data.data);
+	}
 
-		for (int i = GetVoxelAtr(pos); i < dataMap.Count; i += 0x001F) {
-			if (dataMap[i].pos == p) {
-				dataMap[i] = new ChunkData(p, null);
+	/*public void ClearVoxelData(Vector3Int pos) {
+		int hash = chunkHash(pos);
+		if (GetBlock(pos).dataSize.Length <= 1) return;
+
+		for (int i = GetVoxelAtr(pos); i < dataMap.Count; i += 32) {
+			if (dataMap[i].hash == hash) {
+				dataMap[i] = new ChunkData(hash, null);
+				
 				return;
 			}
 		}
-		//SetVoxelAtr(pos, 0);
-	}
+	}*/
 
-	//TODO Hashing verwenden
-	int PosToInt(Vector3Int v) {
-		return v.y + v.x * width.x + v.z * width.z * width.z;
-	}
-
-	Vector3Int IntToPos(int i) {
-		int y = i % width.y;
-		i /= width.y;
-		int x = i % width.x;
-		i /= width.x;
-		int z = i % width.z;
-		return new Vector3Int(x, y, z);
+	int chunkHash(Vector3Int v) {
+		return v.y + v.x * width.x + v.z * width.x * width.z;
 	}
 }
 
 public struct ChunkData {
-	public int pos;
+	public int hash;
 	public byte[] data;
 
-	public ChunkData(int pos, byte[] data) {
-		this.pos = pos;
+	public ChunkData(int hash, byte[] data) {
+		this.hash = hash;
 		this.data = data;
 	}
 
-	public void Set(int index, byte value) {
+	/*public void Set(int index, byte value) {
 		data[index] = value;
-	}
+	}*/
 }

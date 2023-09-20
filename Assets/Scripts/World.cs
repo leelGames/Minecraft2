@@ -75,7 +75,7 @@ public class World : MonoBehaviour {
     void HandleBlockEvents() { 
         for (int i = 0; i < blocksToUpdate.Count; i++) {
             if (blocksToUpdate[i].delay == 0) {
-                if (GetVoxel(blocksToUpdate[i].pos).OnBlockUpdate(this, blocksToUpdate[i].pos)) {
+                if (GetBlock(blocksToUpdate[i].pos).OnBlockUpdate(this, blocksToUpdate[i].pos)) {
                     UpdateBlockFast(blocksToUpdate[i].pos);
                     //threads.chunksToUpdate.AddBuffer(new UpdateEvent(GetChunkCoord(blocksToUpdate[i].pos), 0, true, false));
                 }
@@ -193,19 +193,19 @@ public class World : MonoBehaviour {
         }       
     }
     public bool IsFlat(Vector3Int pos) {
-        return (GetVoxel(pos).type != BType.Terrain && GetBounds(pos).max.y == 1f) || IsGrounded(pos);
+        return (GetBlock(pos).type != BType.Terrain && GetBounds(pos).max.y == 1f) || IsGrounded(pos);
     }
 
     // Damit Strukturen auf flachem Terrain generieren
     public bool IsGrounded(Vector3Int pos) {
-        if (GetChunkP(pos).state < 4) return GetVoxel(pos).type == BType.Terrain && IsTerrainFlat(pos);
-		else return GetVoxel(pos).type == BType.Terrain && GetVoxelData(pos).mainAtr == 1;
+        if (GetChunkP(pos).state < 4) return GetBlock(pos).type == BType.Terrain && IsTerrainFlat(pos);
+		else return GetBlock(pos).type == BType.Terrain && GetVoxelData(pos).mainAtr == 1;
     }
     
     public bool IsTerrainFlat(Vector3Int pos) {
        byte marchIndex = 0;
         for (int i = 0; i < 26; i++) {
-            if (GetVoxel(pos + VD.dirs[i]).type != BType.Terrain) {
+            if (GetBlock(pos + VD.dirs[i]).type != BType.Terrain) {
                 marchIndex |= VD.tBytes[i];
             }
         }
@@ -215,7 +215,7 @@ public class World : MonoBehaviour {
         return false;
     }
 
-    //Korrekturen f�r negative Koordinaten
+    //Korrekturen für negative Koordinaten
     public Vector2Int GetChunkCoord(Vector3Int pos) {
         return new Vector2Int(pos.x < 0 ? (pos.x + 1) / VD.ChunkWidth - 1 : pos.x / VD.ChunkWidth, pos.z < 0 ? (pos.z + 1) / VD.ChunkWidth - 1 : pos.z / VD.ChunkWidth);
     }
@@ -245,7 +245,7 @@ public class World : MonoBehaviour {
 	}
     public void UpdateBlockFast(Vector3Int pos) {
 		ChunkgenData d = GetGenData(pos);
-		if (d.maxheight < pos.y) { d.maxheight = pos.y; d.lodcolor = GetVoxel(pos).id; } else if (d.minheight > pos.y) d.minheight = pos.y;
+		if (d.maxheight < pos.y) { d.maxheight = pos.y; d.lodcolor = (byte) GetVoxel(pos); } else if (d.minheight > pos.y) d.minheight = pos.y;
 		
         threads.chunksToUpdate.AddBuffer(new UpdateEvent(GetChunkCoord(pos), 0, false, true));
 	}
@@ -255,7 +255,7 @@ public class World : MonoBehaviour {
         ChunkgenData d;
    
         d = GetGenData(pos);
-        if (d.maxheight < pos.y) { d.maxheight = pos.y; d.lodcolor = GetVoxel(pos).id; }
+        if (d.maxheight < pos.y) { d.maxheight = pos.y; d.lodcolor = (byte) GetVoxel(pos); }
         else if (d.minheight > pos.y) d.minheight = pos.y;
 
 		Vector2Int coord = GetChunkCoord(pos);
@@ -268,7 +268,7 @@ public class World : MonoBehaviour {
             
             newpos = pos + VD.dirs[i];
             d = GetGenData(newpos);
-			if (d.maxheight < newpos.y) { d.maxheight = pos.y; d.lodcolor = GetVoxel(pos).id; } 
+			if (d.maxheight < newpos.y) { d.maxheight = pos.y; d.lodcolor = (byte) GetVoxel(pos); } 
             if (d.minheight > newpos.y) d.minheight = newpos.y;
 		}
 
@@ -305,65 +305,51 @@ public class World : MonoBehaviour {
 		Chunk chunk = GetChunkP(pos);
 		return chunk.genData[pos.x - chunk.Position.x, pos.z - chunk.Position.z];
 	}
-
-	public Block GetVoxel(Vector3Int pos) {
-		if (!IsVoxelInBounds(pos)) return BD.blocks[0];
+    public int GetVoxel(Vector3Int pos) {
+		if (!IsVoxelInBounds(pos)) return 0;
 		Chunk chunk = GetChunkP(pos);
 		return chunk.GetVoxel(pos - chunk.Position);
+	}
+	public Block GetBlock(Vector3Int pos) {
+		if (!IsVoxelInBounds(pos)) return BD.blocks[0];
+		Chunk chunk = GetChunkP(pos);
+		return chunk.GetBlock(pos - chunk.Position);
 	}
 
 	public VoxelData GetVoxelData(Vector3Int pos) {
 		if (!IsVoxelInBounds(pos)) return new VoxelData(BD.blocks[0], 0, false);
 		Chunk chunk = GetChunkP(pos);
-		return chunk.GetVoxelData(pos - chunk.Position);
+		return new VoxelData(chunk.GetBlock(pos - chunk.Position), chunk.GetVoxelAtr(pos - chunk.Position), chunk.GetVoxelData(pos - chunk.Position), chunk.GetFlag(pos - chunk.Position));
 
 	}
-	public byte GetVoxelData(Vector3Int pos, int index) {
-		return GetVoxelData(pos).data[index];
-	}
-	public void SetVoxelFast(Vector3Int pos, int id, int atr) {
-		Chunk chunk = GetChunkP(pos);
-		chunk.SetVoxel(pos - chunk.Position, id, atr);
-	}
+	
 	public void SetVoxel(Vector3Int pos, int id) {
 		if (!IsVoxelInBounds(pos)) return;
 		Chunk chunk = GetChunkP(pos);
-        chunk.ClearVoxelData(pos - chunk.Position);
 		chunk.SetVoxel(pos - chunk.Position, id);
 	}
 
 	public void SetVoxel(Vector3Int pos, int id, int atr) {
 		if (!IsVoxelInBounds(pos)) return;
 		Chunk chunk = GetChunkP(pos);
-        chunk.ClearVoxelData(pos - chunk.Position);
 		chunk.SetVoxel(pos - chunk.Position, id, atr);	
 	}
 
 	public void SetVoxel(Vector3Int pos, int id, byte[] data) {
 		if (!IsVoxelInBounds(pos)) return;
 		Chunk chunk = GetChunkP(pos);
-		chunk.SetVoxel(pos - chunk.Position, id);
-		if (data != null && data.Length > 0) chunk.SetVoxelData(pos - chunk.Position, data);
-		else chunk.ClearVoxelData(pos - chunk.Position);
+		chunk.SetVoxel(pos - chunk.Position, id, data);
 	}
 
-	public void EditVoxelData(Vector3Int pos, int index, byte value) {
+    public void CopyVoxel(Vector3Int pos, VoxelData data) {
 		if (!IsVoxelInBounds(pos)) return;
 		Chunk chunk = GetChunkP(pos);
-		chunk.SetVoxelData(pos - chunk.Position, index, value);
-	}
-	public void EditVoxelData(Vector3Int pos, byte[] data) {
-		if (!IsVoxelInBounds(pos)) return;
-		Chunk chunk = GetChunkP(pos);
-		chunk.SetVoxelData(pos - chunk.Position, data);
-	}
-	public void SetVoxelData(Vector3Int pos, VoxelData voxelData) {
-		EditVoxelData(pos, voxelData.data);
+		chunk.CopyVoxel(pos - chunk.Position, data);
 	}
 
     public void CreateFallingStructure(Vector3Int pos) {
         Vector3Int[] a;
-        if (GetVoxel(pos).type >= BType.Custom) {
+        if (GetBlock(pos).type >= BType.Custom) {
             a = Traverse(pos).ToArray();
             if (a.Length > 0) {
                 VoxelEntity ve = VoxelEntity.Create(this, a);
@@ -410,8 +396,8 @@ public class World : MonoBehaviour {
     }
 
     bool Connects(Vector3Int a, Vector3Int b, int dir) {
-        Block voxel = GetVoxel(b);
-        if (voxel.type < BType.Terrain) return false;
+       
+        if (GetBlock(b).type < BType.Terrain) return false;
        /* if (voxel.id == 22 || GetVoxel(a).id == 22) {
             return GetVoxel(a).connectMode == CMode.Pipe || GetVoxel(b).connectMode == CMode.Pipe || GetVoxelData(a).mainAtr == GetVoxelData(b).mainAtr;
         }*/
