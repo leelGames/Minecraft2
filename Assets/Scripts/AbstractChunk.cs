@@ -57,12 +57,12 @@ public abstract class AChunk : MonoBehaviour{
 		if (block.type == BType.Voxel) { 
 			return VD.slabBounds[GetVoxelAtr(pos)];
 		}
-		if (block.type == BType.Slope && block.slabType != 0) {
-			return VD.slabBounds[GetVoxelData(pos)[0]];
+		if (block.type == BType.Slope) {
+			return VD.slabBounds[block.slabType == 0 ? 0 : GetData(pos)[0]];
 		}
 		if (block.type == BType.Custom) {
 			Bounds b = Main.meshTable[block.meshID][render.GetMeshIndex(pos)].bounds;
-			if (block.rotMode == RMode.None) return b;
+			if (block.rotMode == RMode.None || block.connectMode == CMode.Pipe) return b;
 
 			int thisAtr = GetVoxelAtr(pos);
 			//Bounds rotiern is kompliziert
@@ -126,8 +126,8 @@ public abstract class AChunk : MonoBehaviour{
 	public bool GetFlag(Vector3Int pos) {
 		return (voxelMap[pos.x, pos.y, pos.z] & 0x0400) == 0x400;
 	}
-	//rename to getData
-	public byte[] GetVoxelData(Vector3Int pos) {
+	
+	public byte[] GetData(Vector3Int pos) {
 		Block block = GetBlock(pos);
 		int atr = GetVoxelAtr(pos);
 	
@@ -142,19 +142,16 @@ public abstract class AChunk : MonoBehaviour{
 			return new byte[0];
 		}
 	}
-	//public VoxelData GetVoxelData(Vector3Int pos) {}
 
 	public void SetVoxel(Vector3Int pos, int id, byte[] data) {
 		int hash = chunkHash(pos);
-		if (data == null || data.Length < 2) Debug.Log("Invalid Chunk Data");
+		if (data == null || data.Length < 2) {Debug.Log("Invalid Chunk Data: " + data.Length); return;}
 		
 		SetVoxel(pos, id, dataMap.Count % 32);
 		dataMap.Add(new ChunkData(hash, data));
 	}
 
 	public void CopyVoxel(Vector3Int pos, VoxelData data) {
-		int hash = chunkHash(pos);
-		
 		if (data.block.dataSize.Length == 0) SetVoxel(pos, data.block.id);
 		else if (data.block.dataSize.Length == 1) SetVoxel(pos, data.block.id, data.mainAtr);
 		else SetVoxel(pos, data.block.id, data.data);

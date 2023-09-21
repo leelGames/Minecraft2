@@ -96,7 +96,7 @@ public class VoxelEntity : AChunk {
 						pos = newposition + Vector3Int.RoundToInt(VoxelRenderer.RotateVert(new Vector3(x, y, z), newrotation));
 						if (world.GetBlock(pos).type != BType.Terrain) {
 							p = new Vector3Int(x, y, z);
-							world.CopyVoxel(pos, VoxelRenderer.rotateVoxel(new VoxelData(GetBlock(p), GetVoxelAtr(p), GetVoxelData(p), false), newrotation));
+							world.CopyVoxel(pos, VoxelRenderer.rotateVoxel(new VoxelData(GetBlock(p), GetData(p)), newrotation));
 
 							//world.SetVoxel(pos, GetVoxel(x, y, z), BD.blocks[GetVoxel(x, y, z)].rotMode != RMode.None ? RotateDir(GetVoxelAtr(x, y, z), newrotation) : 0);
 							world.UpdateBlockFast(pos);

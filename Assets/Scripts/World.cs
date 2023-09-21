@@ -317,10 +317,9 @@ public class World : MonoBehaviour {
 	}
 
 	public VoxelData GetVoxelData(Vector3Int pos) {
-		if (!IsVoxelInBounds(pos)) return new VoxelData(BD.blocks[0], 0, false);
+		if (!IsVoxelInBounds(pos)) return new VoxelData(BD.blocks[0], new byte[0]);
 		Chunk chunk = GetChunkP(pos);
-		return new VoxelData(chunk.GetBlock(pos - chunk.Position), chunk.GetVoxelAtr(pos - chunk.Position), chunk.GetVoxelData(pos - chunk.Position), chunk.GetFlag(pos - chunk.Position));
-
+		return new VoxelData(chunk.GetBlock(pos - chunk.Position), chunk.GetData(pos - chunk.Position));
 	}
 	
 	public void SetVoxel(Vector3Int pos, int id) {
@@ -475,21 +474,22 @@ public class World : MonoBehaviour {
 
 public struct VoxelData {
     public Block block;
-    public bool flag;
-    public int mainAtr;
+    //public bool flag;
+    //public int mainAtr;
     public byte[] data;
+    public int mainAtr {
+        get {return data.Length != 0 ? data[0] : 0;}
+    }
 
-    public VoxelData(Block block, int mainAtr, byte[] data, bool flag) {
-        this.flag = flag;
+    public VoxelData(Block block, byte[] data) {
+      
         this.block = block;
-        this.mainAtr = mainAtr;
         this.data = data;
     }
-	public VoxelData(Block block, int mainAtr, bool flag) {
-		this.flag = flag;
+	/*public VoxelData(Block block, int mainAtr) {
+		
 		this.block = block;
-		this.mainAtr = mainAtr;
         this.data = new byte[0];
-	}
+	}*/
 }
 

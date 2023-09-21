@@ -28,7 +28,7 @@ public class InventoryManager {
     }
 
     public void OnItemClicked(UIItem itemObject, UISlot slotObject) {
-        Debug.Log("Item clicked");
+      //  Debug.Log("Item clicked");
 
         if (isDragging) {
             if (slotObject.itemObject == currentItem) EndDrag();
@@ -46,7 +46,7 @@ public class InventoryManager {
     }
 
     public void OnSlotClicked(UISlot slotObject) {
-        Debug.Log("Slotclicked");
+       // Debug.Log("Slotclicked");
         if (isDragging) {
             if (slotObject.container.type == UICType.Hotbar) {
                 if (player.hotbar.TrySetItem(slotObject, ID.items[currentItem.item.itemID])) EndDrag();
@@ -58,7 +58,7 @@ public class InventoryManager {
     }
 
     public void OnCInventoryClicked() {
-        Debug.Log("Inventory Clicked");
+       // Debug.Log("Inventory Clicked");
         if (isDragging) {
             EndDrag();
             if (currentSlot.container.type == UICType.Hotbar) player.hotbar.TryRemoveItem(currentSlot);
@@ -66,7 +66,7 @@ public class InventoryManager {
     }
 
     public void OnHotbarClicked() {
-        Debug.Log("Hotbar Clicked");
+       // Debug.Log("Hotbar Clicked");
         if (isDragging) {
             player.hotbar.AddItem(ID.items[currentItem.item.itemID]);
             EndDrag();

@@ -42,14 +42,11 @@ public class DebugScreen : MonoBehaviour {
 
     string GetBlockInfo(Vector3Int pos) {
 		VoxelData block = world.GetVoxelData(pos);
-        string info = block.block.id + " " + block.block.blockName + " ";
-        if (block.block.dataSize.Length == 1) info += block.block.dataSize[0] + ": " + block.mainAtr + " ";
-        else if (block.block.dataSize.Length > 1) {
-            for (int i = 0; i < block.block.dataSize.Length; i++) {
-                info += block.block.dataSize[i] + ": " + block.data[i] + " ";
-            }
+        string info = block.block.id + " " + block.block.blockName + " | ";
+        for (int i = 0; i < block.block.dataSize.Length; i++) {
+            info += block.block.dataSize[i] + ": " + block.data[i] + " ";
         }
-        return info + block.flag;
+        return info;
 	}
 
 

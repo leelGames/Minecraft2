@@ -110,7 +110,7 @@ public class Block {
 	
 
 	public static Block NewBlock(string blockName, int texture, SMode shaderMode, bool isTransparent, byte slabs) {
-        return new Block(blockName, texture, 1, 0, slabs, BType.Voxel, CMode.None, RMode.None, SMode.UVCutoff, true, isTransparent, slabs == 0 ? new string[] {"SlabID"} : new string[0]);
+        return new Block(blockName, texture, 1, 0, slabs, BType.Voxel, CMode.None, RMode.None, SMode.UVCutoff, true, isTransparent, slabs == 0 ? new string[0] : new string[] {"SlabID"});
     }
     public static Block NewTerrain(string blockName, int texture) {
         return new Block(blockName, texture, 4, 0, 0, BType.Terrain, CMode.None, RMode.None, SMode.Triplanar, true, false, new string[] { "IsFlat" });
@@ -125,7 +125,7 @@ public class Block {
 		return new Block(blockName, texture, 1, meshId, slabType, BType.Custom, connectMode, rotateMode, shaderMode, isSolid, isTransparent, Main.Concat( slabType != 0 ? new string[] { "SlabID" } : new string[] {"Rotation"}, data));
 	}
 	public static Block NewSlope(string blockName, int texture, bool isTransparent, byte slabs) {
-        return new Block(blockName, texture, 1, 1, slabs, BType.Slope, CMode.None, RMode.Slope, SMode.UVCutoff, true, isTransparent, slabs == 0 ? new string[] { "SlabID" } : new string[] { "SlabID", "Direction12" });
+        return new Block(blockName, texture, 1, 1, slabs, BType.Slope, CMode.None, RMode.Slope, SMode.UVCutoff, true, isTransparent, slabs == 0 ? new string[] { "Direction12" } : new string[] { "SlabID", "Direction12" });
     }
     public static Block NewGrid(string blockName, int texture, int meshid) {
         return new Block(blockName, texture, 2, meshid, 0, BType.Custom, CMode.Grid, RMode.None, SMode.UVCutoff, true, false, new string[0]);
