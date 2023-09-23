@@ -1,24 +1,24 @@
 
 public static class BiomeData {
 	public static readonly Tree[] trees = {
-		new Tree(3, 7, 35, 22, 10, 0.8f, 15, 3), //Default Baum
-		new Tree(2, 7, 35, 22, 10, 0.8f, 25, 5) //Groser Baum
+		new Tree("Grass", "Tree Stem", "Tree Branch", "Leaves", 10, 0.8f, 15, 3), //Default Baum
+		new Tree("Dirt", "Tree Stem", "Tree Branch", "Leaves", 10, 0.8f, 25, 5) //Groser Baum
 	};
 
 	public static readonly Plant[] plants = {
-		new Plant(4, 21, 10, 0.8f, 4),	//Kaktus	
-		new Plant(3, 23, 10, 0.8f, 1),  //Gras
-		new Plant(3, 23, 10, 0.5f, 2)	//Dense Gras
+		new Plant("Sand", "Cactus", 10, 0.8f, 4),		//Kaktus	
+		new Plant("Grass", "Grass Plant", 10, 0.8f, 1),  //Gras
+		new Plant("Grass", "Grass Plant", 10, 0.5f, 2)	//Dense Gras
 	};
 
 	public static readonly Rock[] rocks = {
-		new Rock(34, 10, 0.85f, 10),
-		new Rock(6, 10, 0.8f, 6),
+		new Rock("Rock", 10, 0.85f, 10),
+		new Rock("Cobblestone", 10, 0.8f, 6),
 
 	};
 	public static readonly Lode[] lodes = {
-		new Lode(2, 30, 60, 0.05f, 0.5f),	//Dirt
-		new Lode(1, 50, 100, 0.03f, 0.5f)	//Stone
+		new Lode("Dirt", 30, 60, 0.05f, 0.5f),	//Dirt
+		new Lode("Stone", 50, 100, 0.03f, 0.5f)	//Stone
 	};
 	
 	public static readonly TerrainB[] terrains = {
@@ -30,12 +30,12 @@ public static class BiomeData {
 	};
 
 	public static readonly TypeB[] types = {
-		new TypeB(lodes, 0.2f, 0.4f, new Tree[] {trees[0]}, 3, 2, new Plant[]{ plants[0]}),				//Default
-		new TypeB(new Lode[] {lodes[1]}, 0.2f, 0.4f, new Tree[] {}, 4, 4, new Plant[]{ plants[0]}),		//Desert
-		new TypeB(new Lode[]{}, 0.8f, 0.1f, new Tree[] {}, 3, 2, new Plant[]{ plants[2]}),				//Fields
-		new TypeB(new Lode[]{ }, 0.8f, 0.05f, new Tree[] {trees[1] }, 2, 2, new Plant[]{ plants[1]}),	//Forrest
-		new TypeB(new Lode[]{ }, 1f, 1f, new Tree[] {}, 1, 1, new Plant[]{ }),							//Mountains
-		new TypeB(lodes, 1f, 1f, new Tree[]{ }, 5, 1, new Plant[]{ })									//Ocean (Temp)
+		new TypeB("Grass", "Dirt", 0.2f, 0.4f, lodes, new Tree[] {trees[0]}, new Plant[]{ plants[0]}),			//Default
+		new TypeB("Sand", "Sand", 0.2f, 0.4f, new Lode[] {lodes[1]}, new Tree[0], new Plant[]{ plants[0]}),		//Desert
+		new TypeB("Grass", "Dirt", 0.8f, 0.1f, new Lode[0], new Tree[0], new Plant[]{ plants[2]}),				//Fields
+		new TypeB("Dirt", "Dirt", 0.8f, 0.05f, new Lode[0], new Tree[] {trees[1] }, new Plant[]{ plants[1]}),	//Forrest
+		new TypeB("Stone", "Stone", 1f, 1f, new Lode[0], new Tree[0], new Plant[0]),							//Mountains
+		new TypeB("Dark Stone", "Stone", 1f, 1f, lodes, new Tree[0], new Plant[0])								//Ocean (Temp)
 	};
 
 	public static readonly Biome[] biomes = {
@@ -82,42 +82,40 @@ public struct TerrainB {
 
 public struct TypeB {
 
-	public Lode[] lodes;
-
 	public float treeZoneScale;
 	public float treeZoneThresh;
+	public Lode[] lodes;
 	public Tree[] trees;
 	public Plant[] plants;
-	public byte surfaceBlock;
-	public byte subSurfaceBlock;
+	public int surfaceBlock;
+	public int subSurfaceBlock;
 
-	public TypeB(Lode[] lodes, float treeZoneScale, float treeZoneThresh, Tree[] trees, byte surfaceBlock, byte subSurfaceBlock, Plant[] plants) {
-		this.lodes = lodes;
+	public TypeB(string surfaceBlock, string subSurfaceBlock, float treeZoneScale, float treeZoneThresh, Lode[] lodes, Tree[] trees, Plant[] plants) {
+		this.surfaceBlock = BD.GetByName(surfaceBlock);
+		this.subSurfaceBlock = BD.GetByName(subSurfaceBlock);
 		this.treeZoneScale = treeZoneScale;
 		this.treeZoneThresh = treeZoneThresh;
+		this.lodes = lodes;
 		this.trees = trees;
-		this.surfaceBlock = surfaceBlock;
-		this.subSurfaceBlock = subSurfaceBlock;
 		this.plants = plants;
 	}
 }
 
 public struct Tree {
-
-	public byte groundBlock;
-	public byte stemBlock;
-	public byte branchBlock;
-	public byte leafBlock;
+	public int groundBlock;
+	public int stemBlock;
+	public int branchBlock;
+	public int leafBlock;
 	public float treePlacementScale;
 	public float treePlacementThresh;
 	public int maxTreeHeight;
 	public int minTreeHeight;
 
-	public Tree(byte groundBlock, byte stemBlock, byte branchBlock, byte leafBlock, float treePlacementScale, float treePlacementThresh, int maxTreeHeight, int minTreeHeight) {
-		this.groundBlock = groundBlock;
-		this.stemBlock = stemBlock;
-		this.branchBlock = branchBlock;
-		this.leafBlock = leafBlock;
+	public Tree(string groundBlock, string stemBlock, string branchBlock, string leafBlock, float treePlacementScale, float treePlacementThresh, int maxTreeHeight, int minTreeHeight) {
+		this.groundBlock = BD.GetByName(groundBlock);
+		this.stemBlock = BD.GetByName(stemBlock);
+		this.branchBlock = BD.GetByName(branchBlock);
+		this.leafBlock = BD.GetByName(leafBlock);
 		this.treePlacementScale = treePlacementScale;
 		this.treePlacementThresh = treePlacementThresh;
 		this.maxTreeHeight = maxTreeHeight;
@@ -126,16 +124,15 @@ public struct Tree {
 }
 
 public struct Plant {
-
-	public byte groundBlock;
-	public byte block;
+	public int groundBlock;
+	public int block;
 	public float plantPlacementScale;
 	public float plantPlacementThresh;
 	public int maxHeight;
 
-	public Plant(byte groundBlock, byte block, float plantPlacementScale, float plantPlacementThresh, int maxHeight) {
-		this.groundBlock = groundBlock;
-		this.block = block;
+	public Plant(string groundBlock, string block, float plantPlacementScale, float plantPlacementThresh, int maxHeight) {
+		this.groundBlock = BD.GetByName(groundBlock);
+		this.block = BD.GetByName(block);
 		this.plantPlacementScale = plantPlacementScale;
 		this.plantPlacementThresh = plantPlacementThresh;
 		this.maxHeight = maxHeight;
@@ -143,13 +140,13 @@ public struct Plant {
 }
 
 public struct Rock {
-	public byte block;
+	public int block;
 	public float rockPlacementScale;
 	public float rockPlacementThresh;
 	public int maxSize;
 
-	public Rock(byte block, float rockPlacementScale, float rockPlacementThresh, int maxSize) {
-		this.block = block;
+	public Rock(string block, float rockPlacementScale, float rockPlacementThresh, int maxSize) {
+		this.block = BD.GetByName(block);
 		this.rockPlacementScale = rockPlacementScale;
 		this.rockPlacementThresh = rockPlacementThresh;
 		this.maxSize = maxSize;
@@ -157,15 +154,14 @@ public struct Rock {
 }
 
 public struct Lode {
-
-	public byte block;
+	public int block;
 	public int minHeight;
 	public int maxHeight;
 	public float scale;
 	public float thres;
 
-	public Lode(byte block, int minHeight, int maxHeight, float scale, float thres) {
-		this.block = block;
+	public Lode(string block, int minHeight, int maxHeight, float scale, float thres) {
+		this.block = BD.GetByName(block);
 		this.minHeight = minHeight;
 		this.maxHeight = maxHeight;
 		this.scale = scale;

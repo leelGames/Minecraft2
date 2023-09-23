@@ -127,7 +127,8 @@ public class Player : MonoBehaviour {
                 if (highlight.face.activeSelf) highlight.PlaceBlock();
             }
             if (Input.GetMouseButtonDown(2)) {
-                highlight.select();
+                highlight.selectFacing();
+                hotbar.AddItem(ID.items[highlight.selected.item.id]);
             }
         }
         if (Input.GetKeyDown(KeyCode.T)) {

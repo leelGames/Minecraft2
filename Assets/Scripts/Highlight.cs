@@ -24,26 +24,27 @@ public class Highlight : MonoBehaviour {
     public int bslab;
     public int pslab;
 
-    public void select() {
+    public void selectFacing() {
         selected = world.GetBlock(breakPos);
         selectedBlockText.text = BD.blocks[selected.id].blockName;
     }
     public void select(Item item) {
-        selected = BD.blocks[item.blockID];
+        selected = item.block;
         selectedBlockText.text = item.name;
     }
-
+    //ToDo Bresenham algorithmus
 	public void PlaceHighlight() {
         dir2 = player.dir4 / 2;
         dir3 = player.dir6 / 2;
         
         //Block selected = BD.blocks[player.selected];
-        bool hit = false;;
+        bool hit = false;
 		float step = stepincrement;
 		Vector3 pos = new();
 		Vector3 lastPos = pos;
         Vector3Int lastVoxel = Vector3Int.FloorToInt(pos);
         Vector3Int voxel = lastVoxel;
+        
         Bounds bounds = new();
 		Ray ray = player.cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 1f));
         
@@ -51,11 +52,11 @@ public class Highlight : MonoBehaviour {
             lastPos = pos;
 			pos = ray.GetPoint(step);
             voxel = Vector3Int.FloorToInt(pos);
+            bounds = world.GetBounds(voxel);
+			bounds.center += voxel;
 
 			if (Vector3Int.FloorToInt(lastPos) != voxel) lastVoxel = Vector3Int.FloorToInt(lastPos);
-
-			bounds = world.GetBounds(voxel);
-			bounds.center += voxel;
+          
 			if (world.GetBlock(voxel).type > BType.Liquid && bounds.Contains(pos)) {
                 hit = true;
                 break;
@@ -66,11 +67,12 @@ public class Highlight : MonoBehaviour {
         if (hit) {
 
             dir12 = CalcDir12(pos, lastVoxel - voxel);
-            face.transform.rotation = Quaternion.Euler((lastVoxel - voxel + Vector3.up) * 90);
+            face.transform.rotation = Quaternion.LookRotation(calcClosestFace(pos, bounds));
             breakPos = voxel;
             blockPlacePos = lastVoxel;
             slabPlacePos = Vector3Int.FloorToInt(lastPos);
             terrainPlacePos = Vector3Int.FloorToInt(lastPos + new Vector3(0.5f, 0, 0.5f));
+            
             face.SetActive(true);
 
             //highlight für slabs berechnen (richtung und position berechnen)
@@ -93,17 +95,34 @@ public class Highlight : MonoBehaviour {
                 bslab = (int)((dir2 == 1 ? pos.x : pos.z) * 3) % 3;
                 pslab = (int)((dir2 == 1 ? lastPos.x : lastPos.z) * 3) % 3;
             }
-            //Korrektur für Terrain
-            if (selected.type == BType.Terrain || block.type == BType.Terrain && tcorrection) {
+            
+            //Korrektur für Terrain, nicht anfassen
+            if ((selected.type == BType.Terrain || block.type == BType.Terrain) && tcorrection) {
                 transform.position = Vector3Int.FloorToInt(pos - new Vector3(0.5f, 0f, 0.5f)) + new Vector3(1f, 0.5f, 1f);
-            } else { transform.position = bounds.center; }
+            } 
+            else  transform.position = bounds.center; 
             if (selected.type == BType.Rounded || block.type == BType.Rounded) {
                 transform.localScale = bounds.size * 2f;
-            } else { transform.localScale = bounds.size; }
-
-           
-        } else face.SetActive(false);
+            }
+            else  transform.localScale = bounds.size;            
+        } 
+        else face.SetActive(false);
 	}
+
+    public Vector3 calcClosestFace(Vector3 pos, Bounds b) {
+        int minIndex = 0;
+        float min = 10;
+      
+        if (pos.x - b.min.x < min) {min = pos.x - b.min.x; minIndex = 2;}
+        if (pos.y - b.min.y < min) {min = pos.y - b.min.y; minIndex = 0;}
+        if (pos.z - b.min.z < min) {min = pos.z - b.min.z; minIndex = 4;}
+        if (b.max.x - pos.x < min) {min = b.max.x - pos.x; minIndex = 3;}
+        if (b.max.y - pos.y < min) {min = b.max.y - pos.y; minIndex = 1;}
+        if (b.max.z - pos.z < min) {min = b.max.z - pos.z; minIndex = 5;}
+
+        return VD.dirs[minIndex];
+       
+    }
    
     public void RemoveBlock() {
     	//Block selected = BD.blocks[player.selected];
@@ -216,6 +235,11 @@ public class Highlight : MonoBehaviour {
         }
 		world.UpdateBlock(blockPlacePos);
 	}
+
+    public void CombineBlock() {
+        VoxelData pos = world.GetVoxelData(blockPlacePos);
+        
+    }
 
     int CalcDir12(Vector3 pos, Vector3Int norm) {
         //Rotate 12 Achsen

@@ -1,67 +1,74 @@
 using UnityEngine;
 using System;
 
-public enum BType { Air, Liquid, Terrain, Rounded, Custom, Voxel, Slope }
+public enum BType { Air, Liquid, Terrain, Rounded, Custom, Voxel, Slope, Combination }
 public enum CMode { None, Horizontal, Vertical, Grid, Pipe, Random }
 public enum RMode { None, AllAxis3, YAxis, AllAxis6, Slope }
-public enum SMode { UV, UVCutoff, UVAlpha, Triplanar, Water }
+public enum SMode { UV, UVCutoff, UVAlpha, Triplanar, Water, Invisible }
 public enum VECMode { All, Self, SameBlock, SameType, SameCMode, }//VoxelEntityConnectmode
 
 public static class BD {
 
-	//Liste aller Bl�cke
+	//Liste aller Blöcke
 	public static Block[] blocks = new Block[] {
-        new Block("Air", 0, 0, 0, 0, BType.Air, CMode.None, RMode.None, SMode.Triplanar, false, true, new string[0]),
+        new Block("Air", 0, 0, 0, 0, BType.Air, CMode.None, RMode.None, SMode.Invisible, false, true, new string[0]),
 		Block.NewTerrain("Stone", 0),
         Block.NewTerrain("Dirt", 1),
         Block.NewTerrain("Grass", 2),
         Block.NewTerrain("Sand", 3),
-        Block.NewTerrain("Dark Stone", 10),//5
+        Block.NewTerrain("Dark Stone", 10),
 
-        Block.NewGrid("Cobblestone", 6, 2),
-        Block.NewPipe("Tree Stem", 4, 0),
+        Block.NewRounded("Rock", 10),
+		Block.NewGrid("Cobblestone", 6, 2),
+        
+		Block.NewPipe("Tree Stem", 4, 0),	
+		Block.NewPipe("Tree Branch", 4, 1),
 		
-
-        Block.NewBlock("Wood Planks", 5, SMode.Triplanar, false, 0),
+		Block.NewCustom("Leaves", 9, 3, CMode.Random, SMode.UVCutoff, false, true, new string[] {"TreeID"}),
+        Block.NewCustom("Grass Plant", 15, 4, CMode.Random, SMode.UVCutoff, false, true, new string[0]),
+        Block.NewPipe("Cactus", 14, 1),
+		
+		Block.NewBlock("Wood Planks", 5, SMode.Triplanar, false, 0),
         Block.NewBlock("Wood Half Slap", 5, SMode.Triplanar, true, 1),
-        Block.NewBlock("Wood Third Slap", 5, SMode.Triplanar, true, 2),//10
+        Block.NewBlock("Wood Third Slap", 5, SMode.Triplanar, true, 2),
         Block.NewSlope("Wood Slope", 5, false, 0),
         Block.NewSlope("Wood Slope Half Slab", 5, false, 1),
         Block.NewSlope("Wood Slope Third Slab", 5, false, 2),
 
-        Block.NewBlock("Bricks 2", 8, SMode.Triplanar, false, 0),
+        /*Block.NewBlock("Bricks 2", 8, SMode.Triplanar, false, 0),
         Block.NewBlock("Bricks 1", 7,  SMode.Triplanar,false, 0),//15
         Block.NewBlock("Brick Half Slap", 7, SMode.Triplanar,true, 1),
         Block.NewBlock("Brick Third Slap", 7, SMode.Triplanar,true, 2),
         Block.NewSlope("Brick Slope", 7, false, 0),
         Block.NewSlope("Brick Slope Half Slab", 7, false, 1),
-        Block.NewSlope("Brick Slope Third Slab", 7, false, 2),//20
-        
-        Block.NewPipe("Cactus", 14, 1),
-        Block.NewCustom("Leaves", 9, 3, CMode.Random, SMode.UVCutoff, false, true, new string[] {"TreeID"}),
-        Block.NewCustom("Grass", 15, 4, CMode.Random, SMode.UVCutoff, false, true, new string[0]),
-        new DynamicWater(4, 16, 4),
-        new StaticWater(24),//25
-        Block.NewCustom("Roof", 13, 11, CMode.Horizontal, SMode.UVCutoff, true, false, new string[0] ),
+        Block.NewSlope("Brick Slope Third Slab", 7, false, 2),*/
+         
         Block.NewGrid("Framing", 5, 13),
-	   // Block.NewCustomSlab("Doorframe", 4, 7, 2, RMode.YAxis, SMode.UVCutoff, true, false, new string[] {"CustomslabID"}),
+	    Block.NewCustomPlus("Frame", 4, 9, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
         Block.NewCustomPlus("Door", 5, 8, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
-        Block.NewCustomPlus("Frame", 4, 9, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
-        Block.NewCustomPlus("Window", 11, 10, 2, CMode.Vertical, RMode.YAxis, SMode.UVAlpha, true, true, new string[0]),//30
+        Block.NewCustomPlus("Window", 11, 10, 2, CMode.Vertical, RMode.YAxis, SMode.UVAlpha, true, true, new string[0]),
         Block.NewCustomPlus("Table", 5, 6, 0, CMode.Horizontal, RMode.None, SMode.UVCutoff, true, false, new string[0]),
         Block.NewCustomPlus("Chair", 5, 5, 0, CMode.None, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
-        Block.NewBlock("Glass", 11, SMode.UVAlpha, true, 0),
-        Block.NewRounded("Rock", 10),
-		Block.NewPipe("Tree Branch", 4, 1),
-		Block.NewCustomPlus("Fence", 4, 12, 1, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
+        Block.NewCustomPlus("Fence", 4, 12, 1, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]), 
+		Block.NewCustom("Roof", 13, 11, CMode.Horizontal, SMode.UVCutoff, true, false, new string[0] ),
+		
+		Block.NewBlock("Glass", 11, SMode.UVAlpha, true, 0),
+  		new DynamicWater(4, 16, 4),
+        new StaticWater(24),
+		
+		//letztes
+		new Block("Block Combination", 0, 1, 0, 2, BType.Combination, CMode.None, RMode.None, SMode.Invisible, true, false, new string[0]),
 
-		//TODO custom rotierung integrieren (RMode nur für platzierung)
-		//Customslabs integrieren
-		//Block.newCustom2()//Immer rotierung, slab
     };	
 
 	//Gibt an wie viele Meshs ein block annehmen kann (im Meshtable)
 	public static int[] meshcount = { 192, 192, 63, 3, 3, 1, 16, 1, 16, 15, 16, 16, 16, 64};
+
+	public static int GetByName(string name) {
+		foreach (Block b in blocks) if (b.blockName == name) return b.id;
+		Debug.LogWarning("Blockname not found!");
+		return 2;
+	}
 }
 
 public class Block {
@@ -72,6 +79,8 @@ public class Block {
     public int meshID;		//ID der Zeile der Meshtablelle wo sich die Meshs für den Block befinden
 
 	public float textureScale;
+
+	public Item item;
 
     public CMode connectMode;
     public RMode rotMode; //Info für Higlight zum platzieren, speichert dir24 Data

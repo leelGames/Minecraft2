@@ -19,6 +19,10 @@ public class VoxelRenderer {
 	readonly List<Vector2> uvs;
 	readonly List<Vector2> uvs2;
 
+	Block thisBlock;
+	int thisAtr;
+	byte[] thisData;
+
 	protected int vertCount;
 	protected int solidvertCount;
 	
@@ -36,15 +40,31 @@ public class VoxelRenderer {
 	}
 
 	public void UpdateMesh(UpdateEvent e, Vector3Int pos) {
+		thisBlock = chunk.GetBlock(pos);
+
 		if (e.lod == 0) {
-			switch (chunk.GetBlock(pos).type) {
+			switch (thisBlock.type) {
 				case BType.Air: return;
-				case BType.Liquid: GetMeshLiquid(pos, e); return;
-				case BType.Terrain: GetMeshTerrain(pos, e); return;
-				case BType.Rounded: GetMeshRounded(pos, e); return;
-				case BType.Custom: GetMeshCustom(pos, e); return;
-				case BType.Voxel: GetMeshVoxel(pos, e); return;
-				case BType.Slope: GetMeshSlope(pos, e); return;
+				case BType.Liquid:
+					thisAtr = chunk.GetVoxelAtr(pos);
+					GetMeshLiquid(pos, e); return;
+				case BType.Terrain: 
+					GetMeshTerrain(pos, e); return;
+				case BType.Rounded: 
+					GetMeshRounded(pos, e); return;
+				case BType.Custom: 
+					thisAtr = chunk.GetVoxelAtr(pos);
+					GetMeshCustom(pos, e); return;
+				case BType.Voxel:
+					thisAtr = chunk.GetVoxelAtr(pos);
+					GetMeshVoxel(pos, e); return;
+				case BType.Slope: 
+					thisAtr = chunk.GetVoxelAtr(pos);
+					thisData = chunk.GetData(pos);
+					GetMeshSlope(pos, e); return;
+				case BType.Combination: 
+					thisData = chunk.GetData(pos);
+					GetMeshCombination(pos, e); return;
 			}
 		} else {
 			switch (chunk.GetBlock(pos).type) {
@@ -55,6 +75,7 @@ public class VoxelRenderer {
 				case BType.Custom: GetMeshBounds(pos, e); return;
 				case BType.Voxel: GetMeshVoxel(pos, e); return;
 				case BType.Slope: GetMeshSlope(pos, e); return;
+				case BType.Combination: GetMeshBounds(pos, e); return;
 			}
 		}
 	}
@@ -146,8 +167,6 @@ public class VoxelRenderer {
 	}
 
 	public int GetMeshIndex(Vector3Int pos) {
-		Block thisBlock = chunk.GetBlock(pos);
-		int thisAtr = chunk.GetVoxelAtr(pos);
 
 		//Fügt gespeicherte Ecken und Dreiecke hinzu
 		int meshIndex = 0;
@@ -190,8 +209,6 @@ public class VoxelRenderer {
 	}
 
 	protected void GetMeshCustom(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetBlock(pos);
-		int thisAtr = chunk.GetVoxelAtr(pos);
 		//Bounds b = chunk.GetBounds(pos);
 
 		//umschlossene Blöcke werden nicht geupdated
@@ -251,8 +268,7 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshVoxel(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetBlock(pos);
-		Bounds b = chunk.GetBounds(pos);
+		Bounds b = VD.slabBounds[thisAtr];
 		
 		for (int i = 0; i < 6; i++) {
 			//prüft ob Fläche sichtbar ist				
@@ -271,12 +287,11 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshSlope(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetBlock(pos);
-		Bounds b = chunk.GetBounds(pos);
+		Bounds b = VD.slabBounds[thisBlock.slabType == 0 ? 0 : thisData[0]];
 
 		int dir;
-		if (thisBlock.slabType != 0) dir = chunk.GetData(pos)[1] / 2;
-		else dir = chunk.GetVoxelAtr(pos) / 2;
+		if (thisBlock.slabType != 0) dir = thisData[1] / 2;
+		else dir = thisAtr / 2;
 
 		//Fügt gespeicherte Ecken und Dreiecke hinzu
 		for (int i = 0; i < VD.slopeTris.Length; i++) {
@@ -286,7 +301,6 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshTerrain(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetBlock(pos);
 		Block check;
 		byte marchIndex = 0;
 
@@ -326,7 +340,6 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshRounded(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetBlock(pos);
 		Block check;
 		byte marchIndex;
 
@@ -364,7 +377,6 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshLiquid(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetBlock(pos);
 		int height;
 
 		for (int i = 0; i < 6; i++) {
@@ -375,7 +387,7 @@ public class VoxelRenderer {
 
 					//Höhe
 					if (vert.y != 0) {
-						height = chunk.GetVoxelAtr(pos);
+						height = thisAtr;
 						if (thisBlock.slabType == 1) vert -= new Vector3(0, 1 - (height / 16f), 0f);
 						else {
 
@@ -405,6 +417,34 @@ public class VoxelRenderer {
 				}
 				//vertCount += 4;
 			}
+		}
+	}
+
+	void GetMeshCombination(Vector3Int pos, UpdateEvent e) {
+		byte[] data = thisData;
+		int offset = 0;
+		int count =  thisBlock.slabType;
+
+		for (int j = 0; j < count; j ++) {
+			thisBlock = BD.blocks[data[offset]];
+			
+			if (thisBlock.dataSize.Length == 1) thisAtr = data[offset + 1];
+			else if (thisBlock.dataSize.Length > 1) {
+				thisData = new byte[thisBlock.dataSize.Length];
+				for (int i = 0; i < thisBlock.dataSize.Length; i++) {
+					thisData[i] = data[offset + i + 1];
+				}
+			}
+			switch (thisBlock.type) {
+				case BType.Air: return;
+				case BType.Liquid: GetMeshLiquid(pos, e); return;
+				case BType.Terrain: GetMeshTerrain(pos, e); return;
+				case BType.Rounded: GetMeshRounded(pos, e); return;
+				case BType.Custom: GetMeshCustom(pos, e); return;
+				case BType.Voxel: GetMeshVoxel(pos, e); return;
+				case BType.Slope: GetMeshSlope(pos, e); return;
+			}
+			offset += thisBlock.dataSize.Length + 1;
 		}
 	}
 

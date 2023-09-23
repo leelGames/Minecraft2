@@ -19,7 +19,7 @@ public class UIItem : MonoBehaviour {
             image.enabled = false;
         }
         else {
-            image.sprite = Main.itemTextures[item.itemID - 1];
+            image.sprite = Main.itemTextures[ID.items[item.itemID].textureID];
             image.enabled = true;
         }
     }

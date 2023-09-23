@@ -51,7 +51,7 @@ public abstract class AChunk : MonoBehaviour{
 		return pos.x >= 0 && pos.x < width.x && pos.y >= 0 && pos.y < width.y && pos.z >= 0 && pos.z < width.z;
 	}
 
-	public Bounds GetBounds(Vector3Int pos) {
+	public Bounds GetBounds(Vector3Int pos) {//VR berechnet bounds extra!
 		Block block = GetBlock(pos);
 		
 		if (block.type == BType.Voxel) { 

@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class ID {
-    public static Item[] items = Main.Concat<Item>(new Item[]{
-        new Item("Empty", 0)
 
-    }, getBlockItems());
+    static int[] blockItemTexIDs = new int[] {0, 0, 1, 2, 3, 0, 0, 0, 11, 12, 21, 22, 2, 4, 5, 6, 7, 8, 9, 18, 16, 17, 20, 13, 14, 15, 10, 20, 19, 19};
+
+    public static Item[] items = getBlockItems();
     
     static Item[] getBlockItems() {
+      
         Item[] blockItems = new Item[BD.blocks.Length - 1];
         for (int i = 0; i < blockItems.Length; i++) {
-            blockItems[i] = new Item(BD.blocks[i + 1].blockName, BD.blocks[i + 1].id);
+            blockItems[i] = new Item(BD.blocks[i].blockName, blockItemTexIDs[i]);
+            blockItems[i].block = BD.blocks[i];
+            BD.blocks[i].item = blockItems[i];
         }
         return blockItems;
     }
+
 }
 
 public class Item {
@@ -22,15 +26,17 @@ public class Item {
    
     public int id;
     public string name;
-    public int blockID;
-     //ItemEntity entity;
-    //public int textureID;
+
+    public Block block;
+   
+    //ItemEntity entity;
+    public int textureID;
     int stacklimit;
 
-    public Item(string name, int blockID) {
+    public Item(string name, int textureID) {
         this.id = count;
         this.name = name;
-        this.blockID = blockID;
+        this.textureID = textureID;
         count++;
     }
 }
@@ -45,17 +51,4 @@ public struct ItemStack {
     }
 }
 
-/*public class BlockItem : Item {
-     Block block;
-
-    public BlockItem(string name, int textureID, int blockID) : base(name, textureID) {
-        block = BD.blocks[blockID];
-    }
-}
-public class ToolItem : Item {
-    public ToolItem(string name, int textureID) : base(name, textureID) {
-
-    }
-}
-*/
 

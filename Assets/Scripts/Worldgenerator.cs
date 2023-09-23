@@ -7,14 +7,17 @@ public class Worldgen {
 	static System.Random random;
 
 	public int sealevel = 40;
-	public byte oceanBlock = 25;
-	public byte underGroundBlock = 1;
-	public byte deepUnderGroundBlock = 5;
+	public int oceanBlock;
+	public int underGroundBlock;
+	public int deepUnderGroundBlock;
 
 	int treeID = 1;
 
     public Worldgen(World world) {
         this.world = world;
+		oceanBlock = BD.GetByName("Water Source");
+		underGroundBlock = BD.GetByName("Stone");
+		deepUnderGroundBlock = BD.GetByName("Dark Stone");
 		//Zufallsgenerator auf seed einstellen
 		if (Main.s.seed == 0) seed = Random.Range(int.MinValue, int.MaxValue);
 		else seed = Main.s.seed;
@@ -54,7 +57,7 @@ public class Worldgen {
 
 	public LodgenData GenerateLod(Vector2Int pos) {
 		TerrainData data = GenerateTerrain(pos);
-		byte color;
+		int color;
 		int height = data.terrainheight;
 		Biome biome = BiomeData.biomes[data.biomeid];
 		float perlin;
@@ -63,7 +66,7 @@ public class Worldgen {
 			height = sealevel - 1;
 			color = oceanBlock;
 		} else {
-			color = (byte)GenerateBlock(new Vector3Int(pos.x, height, pos.y), data);
+			color = GenerateBlock(new Vector3Int(pos.x, height, pos.y), data);
 			if (Get2Dperlin(new Vector2(pos.x, pos.y), biome.type.treeZoneScale, -3) > biome.type.treeZoneThresh) {
 				foreach (Tree tree in biome.type.trees) {
 					perlin = Get2Dperlin(new Vector2(pos.x, pos.y), 0.8f, tree.stemBlock);
@@ -74,13 +77,13 @@ public class Worldgen {
 				}
 			} 
 		}
-		return new LodgenData(height, color);
+		return new LodgenData(height, (byte)color);
 	}
 
-    public ushort GenerateBlock(Vector3Int pos, TerrainData data) {
+    public int GenerateBlock(Vector3Int pos, TerrainData data) {
 		//Blöcke nach höhe generieren
 		Biome biome = BiomeData.biomes[data.biomeid];
-		ushort blockID;
+		int blockID;
 
 		if (pos.y < data.terrainheight - 30) blockID = deepUnderGroundBlock;
 		else if (pos.y < data.terrainheight - 15) blockID = underGroundBlock; //stein unten
