@@ -53,8 +53,8 @@ public static class BD {
 		Block.NewCustom("Roof", 13, 11, CMode.Horizontal, SMode.UVCutoff, true, false, new string[0] ),
 		
 		Block.NewBlock("Glass", 11, SMode.UVAlpha, true, 0),
-  		new DynamicWater(4, 16, 4),
-        new StaticWater(24),
+  		Block.NewLiquid("Water", 12, 4, 16, 4),
+		Block.NewLiquidSource("Water Source", 12),
 		
 		//letztes
 		new Block("Block Combination", 0, 1, 0, 2, BType.Combination, CMode.None, RMode.None, SMode.Invisible, true, false, new string[0]),
@@ -67,11 +67,12 @@ public static class BD {
 	public static int GetByName(string name) {
 		foreach (Block b in blocks) if (b.blockName == name) return b.id;
 		Debug.LogWarning("Blockname not found!");
-		return 2;
+		return 1;
 	}
 }
 
 public class Block {
+	static DynamicWater temp;
     static byte count = 0;
 
     public byte id;
@@ -142,9 +143,14 @@ public class Block {
     public static Block NewPipe(string blockName, int texture, int meshid) {
         return new Block(blockName, texture, 1, meshid, 0, BType.Custom, CMode.Pipe, RMode.AllAxis3, SMode.UVCutoff, true, false, new string[] { "Direction3" });
     }
-    public static Block NewLiquid(string blockName, int texture, bool isDynamic) {
-        return new Block(blockName, texture, 4, 0, isDynamic?0:1, BType.Liquid, CMode.None, RMode.None, SMode.UVAlpha, false, true, new string[] { "Height" });
+    public static Block NewLiquid(string blockName, int texture, int flowAmount, int layer, int speed) {
+        temp = new DynamicWater(blockName, texture, flowAmount, layer, speed);
+		return temp;
     }
+	public static Block NewLiquidSource(string blockName, int texture) {
+		return new StaticWater(blockName, texture, temp);
+	}
+
 
 	//Durchschnittsfarbe der Textur
 	public static Color GetTextureColor(Color[] pixels) {
@@ -162,7 +168,7 @@ public class Block {
 		return new Color(r / x, g / x, b / x);
 	}
 
-    public virtual bool OnBlockUpdate(World world, Vector3Int pos) {
+    public virtual bool OnBlockUpdate(Chunk chunk, Vector3Int pos) {
         return false;
     }
 

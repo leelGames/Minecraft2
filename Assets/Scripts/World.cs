@@ -73,9 +73,11 @@ public class World : MonoBehaviour {
     }
 
     void HandleBlockEvents() { 
+        Chunk c;
         for (int i = 0; i < blocksToUpdate.Count; i++) {
             if (blocksToUpdate[i].delay == 0) {
-                if (GetBlock(blocksToUpdate[i].pos).OnBlockUpdate(this, blocksToUpdate[i].pos)) {
+                c = GetChunkP(blocksToUpdate[i].pos);
+                if (c.GetBlock(blocksToUpdate[i].pos - c.Position).OnBlockUpdate(c, blocksToUpdate[i].pos - c.Position)) {
                     UpdateBlockFast(blocksToUpdate[i].pos);
                     //threads.chunksToUpdate.AddBuffer(new UpdateEvent(GetChunkCoord(blocksToUpdate[i].pos), 0, true, false));
                 }
@@ -192,6 +194,7 @@ public class World : MonoBehaviour {
             dist++;
         }       
     }
+    //Glatte Oberfläche
     public bool IsFlat(Vector3Int pos) {
         return (GetBlock(pos).type != BType.Terrain && GetBounds(pos).max.y == 1f) || IsGrounded(pos);
     }
@@ -372,7 +375,7 @@ public class World : MonoBehaviour {
          
             for (int i = 0; i < 6; i++) {
                 next = pos + VD.dirs[i];
-                if (IsGrounded(next) || queue.Count > 10000) {
+                if ((GetBlock(pos).isSolid && IsGrounded(next)) || queue.Count > 10000) {
                     cancel = true;
                     queue.Clear();
                     break;
@@ -395,11 +398,17 @@ public class World : MonoBehaviour {
     }
 
     bool Connects(Vector3Int a, Vector3Int b, int dir) {
-       
-        if (GetBlock(b).type < BType.Terrain) return false;
-       /* if (voxel.id == 22 || GetVoxel(a).id == 22) {
-            return GetVoxel(a).connectMode == CMode.Pipe || GetVoxel(b).connectMode == CMode.Pipe || GetVoxelData(a).mainAtr == GetVoxelData(b).mainAtr;
-        }*/
+        Block blockA = GetBlock(a);
+        Block blockB = GetBlock(b);
+        
+        if (blockB.type <= BType.Terrain) return false;
+
+
+        //Extra Regel für Bäume
+        if (blockB.id == 10) {
+            return blockA.id != blockB.id || GetVoxelData(a).mainAtr == GetVoxelData(b).mainAtr;
+        } 
+        //Connect, wenn Bounds sich berühren
         Bounds ba = GetBounds(a);
         Bounds bb = GetBounds(b);
 

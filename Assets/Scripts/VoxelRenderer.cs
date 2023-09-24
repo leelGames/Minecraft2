@@ -167,7 +167,7 @@ public class VoxelRenderer {
 	}
 
 	public int GetMeshIndex(Vector3Int pos) {
-
+		Block thisBlock = chunk.GetBlock(pos);
 		//Fügt gespeicherte Ecken und Dreiecke hinzu
 		int meshIndex = 0;
 		if (thisBlock.connectMode != CMode.None) {

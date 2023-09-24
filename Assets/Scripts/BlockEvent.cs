@@ -6,33 +6,33 @@ public class DynamicWater : Block {
 	public int layers;
 	public int delay;
 
-	public DynamicWater(int flowAmount, int layer, int speed) : base("Water", 12, 4, layer, 0, BType.Liquid, CMode.None, RMode.None, SMode.Water, false, true, new string[] { "Waterheight" }) {
+	public DynamicWater(string name, int texture, int flowAmount, int layer, int speed) : base(name, texture, 4, layer, 0, BType.Liquid, CMode.None, RMode.None, SMode.UVAlpha, false, true, new string[] { "Waterheight" }) {
 		amount = flowAmount;
 		layers = layer;
 		delay = speed;
 	}
 
-	public override bool OnBlockUpdate(World world, Vector3Int pos) {
-		VoxelData data = world.GetVoxelData(pos);
-		VoxelData next;
-		int volume = data.mainAtr;
+	public override bool OnBlockUpdate(Chunk chunk, Vector3Int pos) {
+	
+		int volume = chunk.GetVoxelAtr(pos);
 		int prevolume = volume;
-
 		int flowAmount = amount;
 
 		//runterfallen
 		int volumedown = -1;
 		int temp;
-		next = world.GetVoxelData(pos + Vector3Int.down);
-		if (next.block.type == BType.Air) {
+		Block nextBlock = chunk.CheckBlock(pos + Vector3Int.down);
+		int nextAtr = chunk.CheckBlockAtr(pos + Vector3Int.down);
+
+		if (nextBlock.type == BType.Air) {
 			volumedown = volume;
 			volume = 0;
-		} else if (next.block.type == BType.Liquid) {
-			if (next.block.slabType == 1 && volume == 1) {
+		} else if (nextBlock.type == BType.Liquid) {
+			if (nextBlock.id == id && volume == 1) {
 				volume = 0;
 				volumedown = -1;
-			} else if (next.mainAtr < layers) {
-				temp = next.mainAtr + volume;
+			} else if (nextAtr < layers) {
+				temp = nextAtr + volume;
 				if (temp > layers) {
 					volumedown = layers;
 					volume = temp - layers;
@@ -42,19 +42,19 @@ public class DynamicWater : Block {
 				}
 			}
 		}
-		//flie�en
-		int minvolume = world.IsFlat(pos + Vector3Int.down) ? 1 : 0;
+		//fließen
+		int minvolume = chunk.world.IsFlat(pos + chunk.Position + Vector3Int.down) ? 1 : 0;
 
 		if (volume > minvolume && (volumedown <= 0 || volumedown == layers)) {
 			int[] volumes = new int[4];
 
 			for (int j = 0; j < 4; j++) {
-				next = world.GetVoxelData(pos + VD.dirs[j + 2]);
-				if (next.block.type == BType.Liquid) {
-					//if (next.block.mode) volumes[j] = -1;
-					//else 
-						volumes[j] = next.mainAtr;
-				} else if (next.block.type != BType.Air) volumes[j] = -1;
+				nextBlock = chunk.CheckBlock(pos + VD.dirs[j + 2]);
+				nextAtr = chunk.CheckBlockAtr(pos + VD.dirs[j + 2]);
+
+				if (nextBlock.id == id) {
+					volumes[j] = nextAtr;
+				} else if (nextBlock.type != BType.Air) volumes[j] = -1;
 			}
 
 			List<int> flows = new();
@@ -77,19 +77,19 @@ public class DynamicWater : Block {
 				if (volume <= minvolume || flowAmount == 0) break;
 			}
 
-			for (int j = 0; j < 4; j++) {						//!
-				if (volumes[j] > 0 && volumes[j] <= layers && world.GetBlock(pos + VD.dirs[j + 2]).slabType == 0) world.SetVoxel(pos + VD.dirs[j + 2], id, volumes[j]);
+			for (int j = 0; j < 4; j++) {						
+				if (volumes[j] > 0 && volumes[j] <= layers /*&& chunk.CheckBlock(pos + VD.dirs[j + 2]).slabType == 0*/) chunk.world.SetVoxel(pos + chunk.Position + VD.dirs[j + 2], id, volumes[j]);
 			}
 		}
-		if (volumedown > 0) world.SetVoxel(pos + Vector3Int.down, id, volumedown);
+		if (volumedown > 0) chunk.world.SetVoxel(pos + chunk.Position + Vector3Int.down, id, volumedown);
 
 		if (volume != prevolume) {
-			if (volume == 0) world.SetVoxel(pos, 0, 0);
-			else world.SetVoxel(pos, id, volume);
+			if (volume == 0) chunk.SetVoxel(pos, 0);
+			else chunk.SetVoxel(pos, id, volume);
 
-			world.AddBlockEvent(new BlockEvent(pos, delay));
+			chunk.world.AddBlockEvent(new BlockEvent(pos + chunk.Position, delay));
 			for (int i = 0; i < 6; i++) {
-				world.AddBlockEvent(new BlockEvent(pos + VD.dirs[i], delay));
+				chunk.world.AddBlockEvent(new BlockEvent(pos + chunk.Position + VD.dirs[i], delay));
 			}
 			return true;
 		}
@@ -98,44 +98,47 @@ public class DynamicWater : Block {
 }
 
 public class StaticWater : Block {
-	public byte dynamicLevel;
+	DynamicWater dynamic;
 
-	public StaticWater(byte dynamicWater) : base("Water Source", 12, 4, 0, 1, BType.Liquid, CMode.None, RMode.None, SMode.Water, false, true, new string[] { "Waterheight" }) {
-		this.dynamicLevel = dynamicWater;
+	public StaticWater(string name, int texture, DynamicWater dynamicWater) : base(name, texture, 4, 0, 1, BType.Liquid, CMode.None, RMode.None, SMode.Water, false, true, new string[] { "Waterheight" }) {
+		this.dynamic = dynamicWater;
 	}
-	public override bool OnBlockUpdate(World world, Vector3Int pos) {
-		VoxelData next;
-		DynamicWater dynamic = (DynamicWater)BD.blocks[dynamicLevel];
+	public override bool OnBlockUpdate(Chunk chunk, Vector3Int pos) {
+		Block nextBlock = chunk.CheckBlock(pos + Vector3Int.up);
+		bool canSpread = nextBlock.type == BType.Air || nextBlock.id == id;
+		int nextAtr;
 		bool update = false;
+		
 
-		int level = world.GetVoxelData(pos).mainAtr;
+		int level = chunk.GetVoxelAtr(pos);
 
-		//if (world.GetBlock(pos + Vector3Int.down).type == 7 && world.GetBlockAtr(pos + Vector3Int.down) == 16) world.SetBlock(pos + Vector3Int.down, id);
-
-		//if (world.GetBlock(pos + Vector3Int.up).type == 0) {
 		for (int i = 2; i < 6; i++) {
-			next = world.GetVoxelData(pos + VD.dirs[i]);
-			if (next.block.type == BType.Air || (next.block.id == dynamic.id && next.mainAtr < level)) {
-				world.SetVoxel(pos + VD.dirs[i], dynamic.id, level);
-				world.AddBlockEvent(new BlockEvent(pos + VD.dirs[i], dynamic.delay));
+			nextBlock = chunk.CheckBlock(pos + VD.dirs[i]);
+			nextAtr = chunk.CheckBlockAtr(pos + VD.dirs[i]);
+			
+			if (nextBlock.type == BType.Air || (nextBlock.id == dynamic.id && nextAtr < level)) {
+				chunk.world.SetVoxel(pos + chunk.Position + VD.dirs[i], dynamic.id, level);
+				chunk.world.AddBlockEvent(new BlockEvent(pos + chunk.Position + VD.dirs[i], dynamic.delay));
 				update = true;
-			} else if (next.block.id == dynamic.id && next.mainAtr >= level - 1) {
-				world.SetVoxel(pos + VD.dirs[i], id, level);
-				world.AddBlockEvent(new BlockEvent(pos + VD.dirs[i], dynamic.delay));
+			} else if (canSpread && nextBlock.id == dynamic.id && nextAtr >= level - 1) {
+				chunk.world.SetVoxel(pos + chunk.Position + VD.dirs[i], id, level);
+				chunk.world.AddBlockEvent(new BlockEvent(pos + chunk.Position + VD.dirs[i], dynamic.delay));
 				update = true;
 			}
 		}
-		next = world.GetVoxelData(pos + Vector3Int.down);
-		if (next.block.type == BType.Air || (next.block.id == dynamic.id && next.mainAtr < dynamic.layers)) {
-			world.SetVoxel(pos + Vector3Int.down, dynamic.id, dynamic.layers);
-			world.AddBlockEvent(new BlockEvent(pos + Vector3Int.down, dynamic.delay));
+		nextBlock = chunk.CheckBlock(pos + Vector3Int.down);
+		nextAtr = chunk.CheckBlockAtr(pos + Vector3Int.down);
+
+		if (nextBlock.type == BType.Air || (nextBlock.id == dynamic.id && nextAtr < dynamic.layers)) {
+			chunk.world.SetVoxel(pos + chunk.Position + Vector3Int.down, dynamic.id, dynamic.layers);
+			chunk.world.AddBlockEvent(new BlockEvent(pos + chunk.Position+ Vector3Int.down, dynamic.delay));
 			update = true;
-		} else if (next.block.id == dynamic.id && next.mainAtr >= dynamic.layers) {
-			world.SetVoxel(pos + Vector3Int.down, id, level);
-			world.AddBlockEvent(new BlockEvent(pos + Vector3Int.down, dynamic.delay));
+		} else if (canSpread && nextBlock.id == dynamic.id && nextAtr >= dynamic.layers) {
+			chunk.world.SetVoxel(pos + chunk.Position + Vector3Int.down, id, level);
+			chunk.world.AddBlockEvent(new BlockEvent(pos + chunk.Position + Vector3Int.down, dynamic.delay));
 			update = true;
 		}
-		//}
+		
 		return update;
 
 	}

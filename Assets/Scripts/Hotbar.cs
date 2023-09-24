@@ -33,10 +33,17 @@ public class Hotbar : UIAbstractContainer, IPointerDownHandler {
 
                 slotObjects[selectIndex].setSprite(2);
 
-                player.highlight.select(slots[selectIndex]);
+                player.inventoryM.select(slots[selectIndex]);
             }
         }
     }
+
+    /*void select(int index) {
+        slotObjects[selectIndex].setSprite(0);
+        selectIndex = index;
+        slotObjects[selectIndex].setSprite(2);
+        player.inventoryM.select(slots[selectIndex]);
+    }*/
 
     public bool TrySetItem(UISlot slot, Item item) {
         for (int i = 0; i < slots.Count; i++) {
@@ -62,7 +69,7 @@ public class Hotbar : UIAbstractContainer, IPointerDownHandler {
         if (slot < slots.Count) {
             slots[slot] = item;
             slotObjects[slot].item = new ItemStack(item.id, 1);
-            if (slot == selectIndex) player.highlight.select(slots[selectIndex]);
+            if (slot == selectIndex) player.inventoryM.select(slots[selectIndex]);
         }
         else {
             AddItem(item);
@@ -81,7 +88,7 @@ public class Hotbar : UIAbstractContainer, IPointerDownHandler {
             slotObjects[slots.Count - 1].item = new ItemStack(item.id, 1);
            
             if (slots.Count == 1) {
-                player.highlight.select(slots[selectIndex]);
+                player.inventoryM.select(slots[selectIndex]);
                 slotObjects[selectIndex].setSprite(2);
             }
         }
@@ -104,13 +111,43 @@ public class Hotbar : UIAbstractContainer, IPointerDownHandler {
             }
             if (slot < 0) {
                 selectIndex = 0;
-                player.highlight.select(ID.items[0]);
+                player.inventoryM.select(ID.items[0]);
             }
             else { 
-                player.highlight.select(slots[selectIndex]);
+                player.inventoryM.select(slots[selectIndex]);
                 slotObjects[selectIndex].setSprite(2);
             }
         }
+    }
+
+    public void selectItem(Item item) {
+        if (slots.Count > 0) {
+            if(slots[selectIndex] == ID.items[0]) {SetItem(selectIndex, item); return;}
+            else {
+                slotObjects[selectIndex].setSprite(0);
+                for (int i = 0; i < slots.Count; i++) {
+                    if (slots[i] == item) {
+                        selectIndex = i;
+                        slotObjects[selectIndex].setSprite(2);
+                        player.inventoryM.select(slots[selectIndex]);
+                        return;
+                    }
+                }
+                for (int i = 0; i < slots.Count; i++) {
+                    if (slots[i] == ID.items[0]) {
+                        selectIndex = i;
+                        slotObjects[selectIndex].setSprite(2);
+                        SetItem(i, item); 
+                        return;
+                    }
+                }
+               
+            }
+        }  
+        AddItem(item);
+        selectIndex = slots.Count - 1;
+        slotObjects[selectIndex].setSprite(2);
+        player.inventoryM.select(slots[selectIndex]);
     }
 
     public void ShowAddSlot() {

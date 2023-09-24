@@ -8,9 +8,15 @@ public class InventoryManager {
     static bool isDragging;
     static UIItem currentItem;
     static UISlot currentSlot;
+    public Block selected = BD.blocks[0];
 
     public InventoryManager(Player player) {
         this.player = player;
+    }
+
+    public void select(Item item) {
+        selected = item.block;
+        player.selectedBlockText.text = item.name;
     }
 
     void BeginDrag(UIItem itemObject, UISlot slotObject) {

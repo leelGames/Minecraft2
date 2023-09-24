@@ -6,6 +6,7 @@ public class Player : MonoBehaviour {
     //static Player client;
     public Camera cam;
     public DebugScreen debugscreen;
+    public TextMeshProUGUI selectedBlockText;
     public Highlight highlight;
     public Hotbar hotbar;
     public Inventory inventory;
@@ -13,8 +14,6 @@ public class Player : MonoBehaviour {
     public InventoryManager inventoryM;
     //public MovementManager movement;
     public GameObject crosshair;
-
-    //public int selected;
 
     public bool inUI;
     public int dir4;
@@ -56,7 +55,7 @@ public class Player : MonoBehaviour {
         realGravity = gravity;
         jumpState = 0;
         cam.farClipPlane = (Main.s.lodrenderDistance + 1) * VD.LODWidth;
-        highlight.select(ID.items[0]);
+       // highlight.select(ID.items[0]);
         inUI = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -72,7 +71,7 @@ public class Player : MonoBehaviour {
         CalcVelocity();
         CalcDirection();
 
-        highlight.PlaceHighlight();
+        highlight.PlaceHighlight(inventoryM.selected);
     }
 
     /*public void OnApplicationFocus(bool hasFocus) {//wird vor Start() aufgerufen!
@@ -120,19 +119,18 @@ public class Player : MonoBehaviour {
         if (highlight.gameObject.activeSelf) {
             //Blöcke abbauen
             if (Input.GetMouseButtonDown(0) && !inUI) {
-                if (highlight.face.activeSelf) highlight.RemoveBlock();
+                if (highlight.face.activeSelf) highlight.RemoveBlock(inventoryM.selected);
             }
             //Blöcke platzieren
             if (Input.GetMouseButtonDown(1) && !inUI) {
-                if (highlight.face.activeSelf) highlight.PlaceBlock();
+                if (highlight.face.activeSelf) highlight.PlaceBlock(inventoryM.selected);
             }
             if (Input.GetMouseButtonDown(2)) {
-                highlight.selectFacing();
-                hotbar.AddItem(ID.items[highlight.selected.item.id]);
+               hotbar.selectItem(highlight.getFacing().item);
             }
         }
         if (Input.GetKeyDown(KeyCode.T)) {
-            highlight.world.GrowTree(highlight.breakPos + Vector3Int.down, highlight.selected.id);
+            highlight.world.GrowTree(highlight.breakPos + Vector3Int.down, inventoryM.selected.id);
         }
 		if (Input.GetKeyDown(KeyCode.F3)) {
 			debugscreen.gameObject.SetActive(!debugscreen.gameObject.activeSelf);

@@ -4,7 +4,7 @@ using TMPro;
 public class Highlight : MonoBehaviour {
 
     public Player player;
-    public TextMeshProUGUI selectedBlockText;
+   
     public World world;
     public GameObject face;
     public BoxCollider coll;
@@ -15,8 +15,6 @@ public class Highlight : MonoBehaviour {
     public Vector3Int slabPlacePos;
     readonly float stepincrement = 0.05f;
 
-    public Block selected;
-
     bool tcorrection;
     public int dir12;
     int dir2;
@@ -24,16 +22,12 @@ public class Highlight : MonoBehaviour {
     public int bslab;
     public int pslab;
 
-    public void selectFacing() {
-        selected = world.GetBlock(breakPos);
-        selectedBlockText.text = BD.blocks[selected.id].blockName;
+    public Block getFacing() {
+        return world.GetBlock(breakPos);
     }
-    public void select(Item item) {
-        selected = item.block;
-        selectedBlockText.text = item.name;
-    }
+   
     //ToDo Bresenham algorithmus
-	public void PlaceHighlight() {
+	public void PlaceHighlight(Block selected) {
         dir2 = player.dir4 / 2;
         dir3 = player.dir6 / 2;
         
@@ -98,7 +92,7 @@ public class Highlight : MonoBehaviour {
             
             //Korrektur für Terrain, nicht anfassen
             if ((selected.type == BType.Terrain || block.type == BType.Terrain) && tcorrection) {
-                transform.position = Vector3Int.FloorToInt(pos - new Vector3(0.5f, 0f, 0.5f)) + new Vector3(1f, 0.5f, 1f);
+                transform.position = Vector3Int.FloorToInt(pos - new Vector3(0.5f, 0f, 0.5f)) + new Vector3(1f, 0.5f, 1f) - new Vector3(face.transform.forward.x, 0, face.transform.forward.z);
             } 
             else  transform.position = bounds.center; 
             if (selected.type == BType.Rounded || block.type == BType.Rounded) {
@@ -124,7 +118,7 @@ public class Highlight : MonoBehaviour {
        
     }
    
-    public void RemoveBlock() {
+    public void RemoveBlock(Block selected) {
     	//Block selected = BD.blocks[player.selected];
 		VoxelData pos = world.GetVoxelData(breakPos);
         tcorrection = false;
@@ -175,14 +169,14 @@ public class Highlight : MonoBehaviour {
         
 	}
   
-    public void PlaceBlock() {
+    public void PlaceBlock(Block selected) {
 		//Block selected = BD.blocks[player.selected];
         VoxelData pos = world.GetVoxelData(blockPlacePos);
         //Terrain
         if (selected.type == BType.Terrain) {
             tcorrection = true;
             for (int i = 0; i < 8; i++) {
-                if (world.GetBlock(terrainPlacePos - VD.voxelVerts[i]).type == BType.Air) {
+                if (world.GetBlock(terrainPlacePos - VD.voxelVerts[i]).type <= BType.Liquid) {
                     world.SetVoxel(terrainPlacePos - VD.voxelVerts[i], selected.id);
                 }
             }

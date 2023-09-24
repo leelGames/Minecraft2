@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Chunk : AChunk {
 	public Vector2Int coords;
-	protected World world;
+	public World world;
 
 	//1: objekt erstellt 2: Terrain generiert 3: struktur generiert 4: Mesh generiert 5: Mesh erstellt
 	//für state 3+ müssen beachbarte chunks state 2 haben
