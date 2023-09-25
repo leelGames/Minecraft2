@@ -423,9 +423,9 @@ public class VoxelRenderer {
 	void GetMeshCombination(Vector3Int pos, UpdateEvent e) {
 		byte[] data = thisData;
 		int offset = 0;
-		int count =  thisBlock.slabType;
+		int count = 2;//thisBlock.slabType;
 
-		for (int j = 0; j < count; j ++) {
+		for (int j = 0; j < count; j++) {
 			thisBlock = BD.blocks[data[offset]];
 			
 			if (thisBlock.dataSize.Length == 1) thisAtr = data[offset + 1];
@@ -436,13 +436,13 @@ public class VoxelRenderer {
 				}
 			}
 			switch (thisBlock.type) {
-				case BType.Air: return;
-				case BType.Liquid: GetMeshLiquid(pos, e); return;
-				case BType.Terrain: GetMeshTerrain(pos, e); return;
-				case BType.Rounded: GetMeshRounded(pos, e); return;
-				case BType.Custom: GetMeshCustom(pos, e); return;
-				case BType.Voxel: GetMeshVoxel(pos, e); return;
-				case BType.Slope: GetMeshSlope(pos, e); return;
+				case BType.Air: break;
+				case BType.Liquid: GetMeshLiquid(pos, e); break;
+				case BType.Terrain: GetMeshTerrain(pos, e); break;
+				case BType.Rounded: GetMeshRounded(pos, e); break;
+				case BType.Custom: GetMeshCustom(pos, e); break;
+				case BType.Voxel: GetMeshVoxel(pos, e); break;
+				case BType.Slope: GetMeshSlope(pos, e); break;
 			}
 			offset += thisBlock.dataSize.Length + 1;
 		}

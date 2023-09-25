@@ -808,6 +808,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 963194227}
   debugscreen: {fileID: 811024535}
+  selectedBlockText: {fileID: 855406399}
   highlight: {fileID: 1000598587}
   hotbar: {fileID: 1168622061}
   inventory: {fileID: 1125158531}
@@ -1108,7 +1109,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 838488116}
-  selectedBlockText: {fileID: 855406399}
   world: {fileID: 1540373710}
   face: {fileID: 1373074155}
   coll: {fileID: 1000598588}

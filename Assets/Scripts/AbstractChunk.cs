@@ -138,14 +138,14 @@ public abstract class AChunk : MonoBehaviour{
 			for (int i = atr; i < dataMap.Count; i += 32) {
 				if (dataMap[i].hash == hash) { return dataMap[i].data; }
 			}
-			Debug.Log("Missing Blockdata at " + pos.ToString());
-			return new byte[0];
+			Debug.LogWarning("Missing Blockdata at " + pos.ToString());
+			return new byte[block.dataSize.Length];
 		}
 	}
 
 	public void SetVoxel(Vector3Int pos, int id, byte[] data) {
 		int hash = chunkHash(pos);
-		if (data == null || data.Length < 2) {Debug.Log("Invalid Chunk Data: " + data.Length); return;}
+		if (data.Length < 2) {Debug.LogWarning("Invalid Chunk Data: " + data.Length + " at " + pos.ToString()); return;}
 		
 		SetVoxel(pos, id, dataMap.Count % 32);
 		dataMap.Add(new ChunkData(hash, data));
