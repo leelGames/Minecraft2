@@ -6,7 +6,7 @@ public class DynamicWater : Block {
 	public int layers;
 	public int delay;
 
-	public DynamicWater(string name, int texture, int flowAmount, int layer, int speed) : base(name, texture, 4, layer, 0, BType.Liquid, CMode.None, RMode.None, SMode.UVAlpha, false, true, new string[] { "Waterheight" }) {
+	public DynamicWater(string name, int texture, int flowAmount, int layer, int speed) : base(name, texture, 4, layer, 0, BType.Liquid, CMode.None, RMode.None, SMode.Water, false, true, new string[] { "Waterheight" }) {
 		amount = flowAmount;
 		layers = layer;
 		delay = speed;
@@ -28,7 +28,7 @@ public class DynamicWater : Block {
 			volumedown = volume;
 			volume = 0;
 		} else if (nextBlock.type == BType.Liquid) {
-			if (nextBlock.id == id && volume == 1) {
+			if (nextBlock.id != id && volume == 1) {
 				volume = 0;
 				volumedown = -1;
 			} else if (nextAtr < layers) {

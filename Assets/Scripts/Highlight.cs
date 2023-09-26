@@ -171,7 +171,8 @@ public class Highlight : MonoBehaviour {
   
     public void PlaceBlock(Block selected) {
 		
-        VoxelData pos = world.GetVoxelData(blockPlacePos);
+        VoxelData placeBlock = world.GetVoxelData(blockPlacePos);
+        VoxelData placeSlab = world.GetVoxelData(slabPlacePos);
         //Terrain
         if (selected.type == BType.Terrain) {
             tcorrection = true;
@@ -180,43 +181,47 @@ public class Highlight : MonoBehaviour {
                     world.SetVoxel(terrainPlacePos - VD.voxelVerts[i], selected.id);
                 }
             }
-        } else if (selected.type == BType.Voxel && selected.slabType != 0 && (pos.block.type == BType.Air || pos.block.type == BType.Voxel)) {
-            pos = world.GetVoxelData(slabPlacePos);
+        } else if (selected.type == BType.Voxel && selected.slabType != 0 && (placeSlab.block.type == BType.Air || placeSlab.block.type == BType.Voxel)) {
             //Halfslabs
-            if (selected.slabType == 1 && ((pos.block.slabType == 1) || pos.block.type == BType.Air)) {
-                int slab = VD.halfSlabCombiner[pslab, 1 + VD.slabDataToID[pos.mainAtr]];
+            if (selected.slabType == 1 && ((placeSlab.block.slabType == 1) || placeSlab.block.type == BType.Air)) {
+                int slab = VD.halfSlabCombiner[pslab, 1 + VD.slabDataToID[placeSlab.mainAtr]];
              
                 if (slab == -1) CombineBlock(slabPlacePos, selected, new byte[] {(byte) ( 1 + 3 * dir3 + pslab)}); 
                 else world.SetVoxel(slabPlacePos, selected.id, 1 + 3 * dir3 + slab);
             }
             //Thirdslabs
-            else if (selected.slabType == 2 && ((pos.block.slabType == 2) || pos.block.type == BType.Air)) {
-                int slab = VD.thirdSlabCombiner[pslab, 1 + VD.slabDataToID[pos.mainAtr]];
+            else if (selected.slabType == 2 && ((placeSlab.block.slabType == 2) || placeSlab.block.type == BType.Air)) {
+                int slab = VD.thirdSlabCombiner[pslab, 1 + VD.slabDataToID[placeSlab.mainAtr]];
               
                 if (slab == -1) CombineBlock(slabPlacePos, selected, new byte[] {(byte) (10 + 6 * dir3 + pslab)});
                 else world.SetVoxel(slabPlacePos, selected.id, 10 + 6 * dir3 + slab);
             }
             else Debug.Log("Wrong Slab Combination");// CombineBlock(slabPlacePos, selected); 
         } 
-        else if (selected.type == BType.Slope && selected.slabType != 0 && (pos.block.type == BType.Air || pos.block.type == BType.Slope)) {
-            pos = world.GetVoxelData(slabPlacePos);
+        else if (selected.type == BType.Slope && selected.slabType != 0 && (placeSlab.block.type == BType.Air || placeSlab.block.type == BType.Slope)) {
               //Halfslabs
-            if (selected.slabType == 1 && ((pos.block.slabType == 1) || pos.block.type == BType.Air)) {
-                int slab = VD.halfSlabCombiner[pslab, 1 + VD.slabDataToID[pos.data.Length == 2 ? pos.data[0] : 0]];
+            if (selected.slabType == 1 && ((placeSlab.block.slabType == 1) || placeSlab.block.type == BType.Air)) {
+                int slab = VD.halfSlabCombiner[pslab, 1 + VD.slabDataToID[placeSlab.data.Length == 2 ? placeSlab.data[0] : 0]];
               
-                if (slab == -1) CombineBlock(slabPlacePos, selected, new byte[] { (byte)(1 + 3 * dir3 + pslab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
-                else world.SetVoxel(slabPlacePos, selected.id, new byte[] { (byte)(1 + 3 * dir3 + slab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
+                if (slab == -1) CombineBlock(slabPlacePos, selected, new byte[] { (byte)(1 + 3 * dir3 + pslab), (byte)(placeSlab.data.Length == 2 ? placeSlab.data[1] : dir12 * 2) });
+                else world.SetVoxel(slabPlacePos, selected.id, new byte[] { (byte)(1 + 3 * dir3 + slab), (byte)(placeSlab.data.Length == 2 ? placeSlab.data[1] : dir12 * 2) });
             }
             //Thirdslabs
-            else if (selected.slabType == 2 && ((pos.block.slabType == 2) || pos.block.type == BType.Air)) {
-                int slab = VD.thirdSlabCombiner[pslab, 1 + VD.slabDataToID[pos.data.Length == 2 ? pos.data[0] : 0]];
+            else if (selected.slabType == 2 && ((placeSlab.block.slabType == 2) || placeSlab.block.type == BType.Air)) {
+                int slab = VD.thirdSlabCombiner[pslab, 1 + VD.slabDataToID[placeSlab.data.Length == 2 ? placeSlab.data[0] : 0]];
               
-                if (slab == -1) CombineBlock(slabPlacePos, selected, new byte[] { (byte)(10 + 6 * dir3 + pslab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
-                else world.SetVoxel(slabPlacePos, selected.id, new byte[] { (byte)(10 + 6 * dir3 + slab), (byte)(pos.data.Length == 2 ? pos.data[1] : dir12 * 2) });
+                if (slab == -1) CombineBlock(slabPlacePos, selected, new byte[] { (byte)(10 + 6 * dir3 + pslab), (byte)(placeSlab.data.Length == 2 ? placeSlab.data[1] : dir12 * 2) });
+                else world.SetVoxel(slabPlacePos, selected.id, new byte[] { (byte)(10 + 6 * dir3 + slab), (byte)(placeSlab.data.Length == 2 ? placeSlab.data[1] : dir12 * 2) });
             } 
             else Debug.Log("Wrong Slab Combination"); // CombineBlock(slabPlacePos, selected);
         }
-        else if (world.GetBlock(blockPlacePos).type <= BType.Liquid) {
+        //combine slabs
+        else if (selected.type == BType.Voxel && selected.slabType == 1 && (placeSlab.block.type == BType.Slope)) CombineBlock(slabPlacePos, selected, new byte[] {(byte) ( 1 + 3 * dir3 + pslab)}); 
+        else if (selected.type == BType.Voxel && selected.slabType == 2 && (placeSlab.block.type == BType.Slope)) CombineBlock(slabPlacePos, selected, new byte[] {(byte) (10 + 6 * dir3 + pslab)});
+        else if (selected.type == BType.Slope && selected.slabType == 1 && (placeSlab.block.type == BType.Voxel)) CombineBlock(slabPlacePos, selected, new byte[] {(byte) ( 1 + 3 * dir3 + pslab), (byte)(placeSlab.data.Length == 2 ? placeSlab.data[1] : dir12 * 2) });
+        else if (selected.type == BType.Slope && selected.slabType == 2 && (placeSlab.block.type == BType.Voxel)) CombineBlock(slabPlacePos, selected, new byte[] {(byte) (10 + 6 * dir3 + pslab), (byte)(placeSlab.data.Length == 2 ? placeSlab.data[1] : dir12 * 2) });
+
+        else if (placeBlock.block.type <= BType.Liquid) {
             if (selected.type == BType.Liquid) world.SetVoxel(blockPlacePos, selected.id, 12);
             else if (selected.type == BType.Custom && selected.slabType != 0) world.SetVoxel(slabPlacePos, selected.id, 3 * player.dir4 + (player.dir4 == 0 || player.dir4 == 2 ? pslab : 2 - pslab));
             else if (selected.rotMode == RMode.Slope) world.SetVoxel(blockPlacePos, selected.id, dir12 * 2);
@@ -247,6 +252,7 @@ public class Highlight : MonoBehaviour {
 
 
     void CombineBlock(Vector3Int pos, Block selected, byte[] selectedData) {
+        Debug.Log(selectedData[0]);
         VoxelData placed = world.GetVoxelData(pos);
         if (true) {//Bounds nicht überlappen oder sonderregeln
             byte[] data = new byte[placed.block.dataSize.Length + selected.dataSize.Length + 2];

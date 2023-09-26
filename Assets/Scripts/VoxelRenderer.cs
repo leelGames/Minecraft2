@@ -380,25 +380,34 @@ public class VoxelRenderer {
 		int height;
 
 		for (int i = 0; i < 6; i++) {
-			//definert Ecken der Fläche							//waterlogging implementieren
-			if (chunk.CheckBlock(pos + VD.dirs[i]).type == BType.Air) { // || i == 1 && CheckBlock(pos + VD.faceChecks[i]).type != 7) {
+			//definert Ecken der Fläche							//optimeren und waterlogging implementieren
+			if (chunk.CheckBlock(pos + VD.dirs[i]).type == BType.Air  || i == 1 && chunk.CheckBlock(pos + VD.dirs[i]).type != BType.Liquid) {
 				for (int j = 0; j < 4; j++) {
 					Vector3 vert = VD.voxelVerts[VD.voxelTris[i, j]];
 
 					//Höhe
 					if (vert.y != 0) {
+						//Static
 						height = thisAtr;
-						if (thisBlock.slabType == 1) vert -= new Vector3(0, 1 - (height / 16f), 0f);
+						if (thisBlock.slabType == 1) {
+							vert -= new Vector3(0, 1 - (height / 16f), 0f);
+						}
 						else {
-
+							//Dynamic
 							for (int k = 0; k < 8; k++) {
-								Vector3Int dir = pos + new Vector3Int(VD.chunkChecks[k].x, 0, VD.chunkChecks[k].y);
+								Vector3Int dir = pos + new Vector3Int(VD.chunkChecks[k].x, 1, VD.chunkChecks[k].y);
 
-								if (chunk.CheckBlock(dir).type == BType.Liquid && (chunk.CheckBlockAtr(dir) * VD.waterHeight[k, VD.voxelTris[i, j]] > height)) {
-									height = chunk.CheckBlockAtr(dir);
+								if (chunk.CheckBlock(dir).type == BType.Liquid && (VD.waterHeight[k, VD.voxelTris[i, j]] == 1)) {
+									height = thisBlock.meshID + chunk.CheckBlockAtr(dir);
+								}
+								else {
+									dir = pos + new Vector3Int(VD.chunkChecks[k].x, 0, VD.chunkChecks[k].y);
+									if (chunk.CheckBlock(dir).type == BType.Liquid && (chunk.CheckBlockAtr(dir) * VD.waterHeight[k, VD.voxelTris[i, j]] > height)) {
+										height = chunk.CheckBlockAtr(dir);
+									}
 								}
 							}
-							vert += (thisBlock.meshID - height) / (float)thisBlock.meshID * Vector3.down;
+							vert += (thisBlock.meshID - height) / (float) thisBlock.meshID * Vector3.down;
 						}
 					}
 

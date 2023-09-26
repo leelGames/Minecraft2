@@ -22,6 +22,7 @@ public class DebugScreen : MonoBehaviour {
             debugText += "Facing: " + world.player.dir4 + " " + world.player.highlight.dir12 + " " + faceingNames[world.player.dir6] + "\n";
             debugText += "BBlock: " + GetBlockInfo(world.player.highlight.breakPos) + "\n";
 			debugText += "PBlock: " + GetBlockInfo(world.player.highlight.blockPlacePos) + "\n";
+            debugText += "SPBlock: " + GetBlockInfo(world.player.highlight.slabPlacePos) + "\n";
 			debugText += "Biome: " + BiomeData.biomes[world.GetGenData(world.player.Position).TerrainData.biomeid].name + "\n";
             debugText += "BreakSlap: " + world.player.highlight.bslab + " PlaceSlap: " + world.player.highlight.pslab + "\n";
             //debugText += world.GetBounds(world.player.highlight.breakPos).min.ToString("F10") + " " + world.GetBounds(world.player.highlight.breakPos).max.ToString("F10");
@@ -42,9 +43,23 @@ public class DebugScreen : MonoBehaviour {
 
     string GetBlockInfo(Vector3Int pos) {
 		VoxelData block = world.GetVoxelData(pos);
-        string info = block.block.id + " " + block.block.blockName + " | ";
-        for (int i = 0; i < block.block.dataSize.Length; i++) {
-            info += block.block.dataSize[i] + ": " + block.data[i] + " ";
+        string info = "";
+        if (block.block.blockName != "Block Combination") {
+             info = block.block.blockName + " | ";
+            for (int i = 0; i < block.block.dataSize.Length; i++) {
+                info += block.block.dataSize[i] + ": " + block.data[i] + " ";
+            }
+        } else {
+            int offset = 0;
+            for (int j = 0; j < 2; j++) {
+                Block a = BD.blocks[block.data[offset]];
+                info += a.blockName + " | ";
+                for (int i = 0; i < a.dataSize.Length; i++) {
+                    info += a.dataSize[i] + ": " + block.data[offset + i + 1] + " ";
+                }
+                offset += a.dataSize.Length + 1;
+                info += ", ";
+            }
         }
         return info;
 	}

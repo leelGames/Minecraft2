@@ -57,7 +57,7 @@ public static class BD {
 		Block.NewLiquidSource("Water Source", 12),
 		
 		//letztes
-		new Block("Block Combination", 0, 1, 0, 2, BType.Combination, CMode.None, RMode.None, SMode.Invisible, true, false, new string[]{"Block A", "", "Block B", ""}),
+		new Block("Block Combination", 0, 1, 0, 2, BType.Combination, CMode.None, RMode.None, SMode.Invisible, true, false, new string[]{"", ""}),
 
     };	
 
