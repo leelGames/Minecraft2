@@ -15,10 +15,10 @@ public class Chunk : AChunk {
 		get { return new Vector3Int(coords.x * VD.ChunkWidth, 0, coords.y * VD.ChunkWidth); }
 	}
 
-	public void Init(Vector2Int coord, World w) {
+	public void Init(Vector2Int coord) {
+		world = World.currend;
 		Init(VD.ChunkWidth, VD.ChunkHeight, VD.ChunkWidth);
 		coords = coord;
-		world = w;
 
 		gameObject.transform.SetParent(world.transform);
 		gameObject.transform.position = Position;

@@ -67,15 +67,22 @@ public class VoxelRenderer {
 					GetMeshCombination(pos, e); return;
 			}
 		} else {
-			switch (chunk.GetBlock(pos).type) {
+			switch (thisBlock.type) {
 				case BType.Air: return;
-				case BType.Liquid: GetMeshBounds(pos, e); return;
-				case BType.Terrain: GetMeshTerrain(pos, e); return;
-				case BType.Rounded: GetMeshRounded(pos, e); return;
-				case BType.Custom: GetMeshBounds(pos, e); return;
-				case BType.Voxel: GetMeshVoxel(pos, e); return;
-				case BType.Slope: GetMeshSlope(pos, e); return;
-				case BType.Combination: GetMeshBounds(pos, e); return;
+				case BType.Liquid: case BType.Custom: case BType.Combination:
+					thisAtr = chunk.GetVoxelAtr(pos);
+					GetMeshBounds(pos, e); return;
+				case BType.Terrain: 
+					GetMeshTerrain(pos, e); return;
+				case BType.Rounded: 
+					GetMeshRounded(pos, e); return;
+				case BType.Voxel:
+					thisAtr = chunk.GetVoxelAtr(pos);
+					GetMeshVoxel(pos, e); return;
+				case BType.Slope:
+					thisAtr = chunk.GetVoxelAtr(pos);
+					thisData = chunk.GetData(pos);
+					GetMeshSlope(pos, e); return;
 			}
 		}
 	}
@@ -168,6 +175,7 @@ public class VoxelRenderer {
 
 	public int GetMeshIndex(Vector3Int pos) {
 		Block thisBlock = chunk.GetBlock(pos);
+		int thisAtr = chunk.GetVoxelAtr(pos);
 		//Fügt gespeicherte Ecken und Dreiecke hinzu
 		int meshIndex = 0;
 		if (thisBlock.connectMode != CMode.None) {
@@ -197,7 +205,7 @@ public class VoxelRenderer {
 				if (thisBlock.connectMode == CMode.Horizontal) offset = 2;
 				else offset = 0; //Vertical
 				for (int i = 0; i < 4; i++) {
-					next = pos + Vector3Int.RoundToInt(Quaternion.Euler(VD.dirToRot2[thisBlock.slabType == 0 ? thisAtr : thisAtr / 3]) * ((Vector3)VD.dirs[i + offset]));
+					next = pos + Vector3Int.RoundToInt(VD.dirToRot3[thisBlock.slabType == 0 ? thisAtr : thisAtr / 3] * ((Vector3)VD.dirs[i + offset]));
 					if (chunk.CheckBlock(next).id == thisBlock.id && chunk.CheckBlockAtr(next) == thisAtr) {
 						meshIndex |= 1 << i;
 					}
@@ -312,8 +320,13 @@ public class VoxelRenderer {
 			}
 			//Ein schwebender Block wird gelöscht
 			if (marchIndex == 255) {
-				if (!chunk.Active && pos.y < 40) chunk.SetVoxel(pos, 25, 12);
-				else chunk.SetVoxel(pos, 0);
+				for (int j = 2; j < 6; j++) {
+					if (chunk.CheckBlock(pos + VD.dirs[i]).type == BType.Liquid) {
+						chunk.SetVoxel(pos, 29, 12);
+						return;
+					}
+				} 
+				chunk.SetVoxel(pos, 0);
 				return;
 			}
 		}
@@ -458,7 +471,6 @@ public class VoxelRenderer {
 	}
 
 	void GetMeshBounds(Vector3Int pos, UpdateEvent e) {
-		Block thisBlock = chunk.GetBlock(pos);
 		Bounds b = chunk.GetBounds(pos);
 		Block nextBlock;
 
@@ -481,12 +493,9 @@ public class VoxelRenderer {
 	//Für implementierung von rotierung
 	public static Vector3 RotateVert(Vector3 vert, int dir) {
 		Vector3 center = new(0.5f, 0.5f, 0.5f);
-		return Quaternion.Euler(VD.dirToRot2[dir]) * (vert - center) + center;
+		return VD.dirToRot3[dir] * (vert - center) + center;
 	}
-	public static Vector3 RotateVert(Vector3 vert, Vector3Int angle) {
-		Vector3 center = new(0.5f, 0.5f, 0.5f);
-		return Quaternion.Euler(angle) * (vert - center) + center;
-	}
+	
 	public static Vector3 RotateVert(Vector3 vert, Quaternion rotation) {
 		Vector3 center = new(0.5f, 0.5f, 0.5f);
 		return rotation * (vert + center) - center;
@@ -495,16 +504,22 @@ public class VoxelRenderer {
 	//ToDo VoexelEntity rotations
 
 	public static int rotateDirBlock(int dir, Quaternion rotation) {
-		//Quaternion rotation = Quaternion.Euler(VD.dirToRot2[dir]) * rot;
-		//fix scheis rundungsfeler
-		//rotation = Quaternion.Euler(Vector3Int.RoundToInt(rotation.eulerAngles));
 		
-		for (int i = 0; i < VD.dirToRot2.Length; i++) {
-		
-			if (Vector3Int.RoundToInt(rotation.eulerAngles) == VD.dirToRot2[i]) return i;
+		rotation = (VD.dirToRot3[dir] * rotation).normalized;
+
+		/*rotation.ToAngleAxis(out float angle, out Vector3 axis);
+		Debug.Log(axis.ToString("F10"));
+		Debug.Log(angle.ToString("F10"));*/
+		float dot;
+		float max = 0;
+		int maxIndex = 0;
+		for (int i = 0; i < VD.dirToRot3.Length; i++) {
+			dot = Quaternion.Dot(rotation, VD.dirToRot3[i]);
+			if (dot > max) {max = dot; maxIndex = i;}
 		}
-		Debug.Log("Place Rotation not found");
-		return 0;
+		//Debug.LogWarning("Place Rotation not found");
+		
+		return maxIndex;
 	}
 
 	public static int rotateSlabBlock(int slabID, Quaternion rotation) {
@@ -519,5 +534,22 @@ public class VoxelRenderer {
 		else if(block.block.rotMode != RMode.None) return new VoxelData(block.block, new byte[] {(byte) rotateDirBlock(block.mainAtr, rotation)});
 		else if(block.block.slabType != 0) return new VoxelData(block.block, new byte[] {(byte)rotateSlabBlock(block.mainAtr, rotation)});
 		else return new VoxelData(block.block, rotateCSlabBlock(block.data[0], block.data[1], rotation));
+	}
+
+	public Quaternion RoundRotation(Quaternion rotation) {
+		rotation.ToAngleAxis(out float angle, out Vector3 axis);
+		float max = 0;
+		int maxIndex = 0;
+
+		if (axis.x >  max) {max = axis.x; maxIndex = 3; }
+		if (axis.y >  max) {max = axis.y; maxIndex = 1; }
+		if (axis.z >  max) {max = axis.z; maxIndex = 5; }
+		if (axis.x < -max) {max = axis.x; maxIndex = 2; }
+		if (axis.y < -max) {max = axis.y; maxIndex = 0; }
+		if (axis.z < -max) {max = axis.z; maxIndex = 4; }
+	
+		axis =  VD.dirs[maxIndex];
+		angle = Mathf.RoundToInt(angle / 90) * 90;
+		return Quaternion.AngleAxis(angle, axis);
 	}
 }

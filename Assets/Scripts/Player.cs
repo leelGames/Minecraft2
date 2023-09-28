@@ -3,7 +3,7 @@ using TMPro;
 
 public class Player : MonoBehaviour {
 
-    //static Player client;
+    public static Player client;
     public Camera cam;
     public DebugScreen debugscreen;
     public TextMeshProUGUI selectedBlockText;
@@ -49,6 +49,7 @@ public class Player : MonoBehaviour {
     }
 
     void Start() {
+        client = this;
         inventoryM = new(this);
         inventory.Init(); //Unity buggt rum und ruft startet Inventory nicht
 		//debugscreen.gameObject.SetActive(false);
@@ -130,7 +131,7 @@ public class Player : MonoBehaviour {
             }
         }
         if (Input.GetKeyDown(KeyCode.T)) {
-            highlight.world.GrowTree(highlight.breakPos + Vector3Int.down, inventoryM.selected.id);
+            World.currend.GrowTree(highlight.breakPos + Vector3Int.down, inventoryM.selected.id);
         }
 		if (Input.GetKeyDown(KeyCode.F3)) {
 			debugscreen.gameObject.SetActive(!debugscreen.gameObject.activeSelf);

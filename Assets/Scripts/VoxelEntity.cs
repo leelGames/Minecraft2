@@ -1,7 +1,6 @@
 using UnityEngine;
 
 public class VoxelEntity : AChunk {
-	World world;
 	Rigidbody rb;
 	Vector3Int pos;
 	Vector3Int width;
@@ -11,11 +10,11 @@ public class VoxelEntity : AChunk {
 	Quaternion newrotation;
 
 
-	public void Init(World w, Vector3Int pos1, Vector3Int pos2, int size) {
+	public void Init(Vector3Int pos1, Vector3Int pos2, int size) {
 		Init(pos2.x - pos1.x, pos2.y - pos1.y, pos2.z - pos1.z);
 		render = new VoxelRenderer(this);
 		meshCollider.convex = true;
-		world = w;
+
 		pos = pos1;
 		width = pos2 - pos1;
 
@@ -23,13 +22,13 @@ public class VoxelEntity : AChunk {
 		rb.mass = size * 10;
 		rb.interpolation = RigidbodyInterpolation.Interpolate;
 	
-		gameObject.transform.SetParent(world.transform);
+		gameObject.transform.SetParent(World.currend.transform);
 		gameObject.transform.position = pos;
 		gameObject.name = "VoxelEntity ";
 		moving = true;
 	}
 
-	public static VoxelEntity Create(World world, Vector3Int[] voxels) {
+	public static VoxelEntity Create(Vector3Int[] voxels) {
 		Vector3Int min = voxels[0];
 		Vector3Int max = voxels[0];
 
@@ -45,11 +44,11 @@ public class VoxelEntity : AChunk {
 			else if (voxels[i].z > max.z) max.z = voxels[i].z;
 		}
 		VoxelEntity ve = new GameObject().AddComponent<VoxelEntity>();
-		ve.Init(world, min, max + Vector3Int.one, voxels.Length);
+		ve.Init(min, max + Vector3Int.one, voxels.Length);
 		ve.Active = false;
 
 		for (int i = 0; i < voxels.Length; i++) {
-			ve.CopyVoxel(voxels[i] - min, world.GetVoxelData(voxels[i]));
+			ve.CopyVoxel(voxels[i] - min, World.currend.GetVoxelData(voxels[i]));
 		}
 
 		UpdateEvent e = new(Vector2Int.zero, 0, false, true);
@@ -66,7 +65,7 @@ public class VoxelEntity : AChunk {
 				meshCollider.enabled = false;
 				rb.isKinematic = true;
 				newposition = Vector3Int.RoundToInt(transform.position + (width / 2)) - (width / 2);
-				newrotation = Quaternion.Euler(GetRotation(transform.eulerAngles));
+				newrotation = render.RoundRotation(transform.rotation);
 				/*Vector3 center = rb.centerOfMass;
 				newrotation = Quaternion.Euler(GetRotation(transform.eulerAngles));
 				Vector3 newcenter = newrotation * center;
@@ -87,6 +86,7 @@ public class VoxelEntity : AChunk {
 	}
 
 	void Place() {
+		World world = World.currend;
 		Vector3Int pos;
 		Vector3Int p;
 		for (int x = 0; x < width.x; x++) {
@@ -112,7 +112,7 @@ public class VoxelEntity : AChunk {
 		for (int x = 0; x < width.x; x++) {
 			for (int z = 0; z < width.z; z++) {
 				for (int y = 0; y < width.y; y++) {
-					CopyVoxel(new Vector3Int(x, y, z), world.GetVoxelData(pos + new Vector3Int(x, y, z)));
+					CopyVoxel(new Vector3Int(x, y, z), World.currend.GetVoxelData(pos + new Vector3Int(x, y, z)));
 				}
 			}
 		}

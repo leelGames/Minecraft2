@@ -13,8 +13,8 @@ public class Worldgen {
 
 	int treeID = 1;
 
-    public Worldgen(World world) {
-        this.world = world;
+    public Worldgen() {
+        world = World.currend;
 		oceanBlock = BD.GetByName("Water Source");
 		underGroundBlock = BD.GetByName("Stone");
 		deepUnderGroundBlock = BD.GetByName("Dark Stone");

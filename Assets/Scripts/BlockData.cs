@@ -16,7 +16,7 @@ public static class BD {
         Block.NewTerrain("Dirt", 1),
         Block.NewTerrain("Grass", 2),
         Block.NewTerrain("Sand", 3),
-        Block.NewTerrain("Dark Stone", 10),
+    	Block.NewTerrain("Dark Stone", 10),//5
 
         Block.NewRounded("Rock", 10),
 		Block.NewGrid("Cobblestone", 6, 2),
@@ -24,13 +24,13 @@ public static class BD {
 		Block.NewPipe("Tree Stem", 4, 0),	
 		Block.NewPipe("Tree Branch", 4, 1),
 		
-		Block.NewCustom("Leaves", 9, 3, CMode.Random, SMode.UVCutoff, false, true, new string[] {"TreeID"}),
+		Block.NewCustom("Leaves", 9, 3, CMode.Random, SMode.UVCutoff, false, true, new string[] {"TreeID"}),//10
         Block.NewCustom("Grass Plant", 15, 4, CMode.Random, SMode.UVCutoff, false, true, new string[0]),
         Block.NewPipe("Cactus", 14, 1),
 		
 		Block.NewBlock("Wood Planks", 5, SMode.Triplanar, false, 0),
         Block.NewBlock("Wood Half Slap", 5, SMode.Triplanar, true, 1),
-        Block.NewBlock("Wood Third Slap", 5, SMode.Triplanar, true, 2),
+        Block.NewBlock("Wood Third Slap", 5, SMode.Triplanar, true, 2),//15
         Block.NewSlope("Wood Slope", 5, false, 0),
         Block.NewSlope("Wood Slope Half Slab", 5, false, 1),
         Block.NewSlope("Wood Slope Third Slab", 5, false, 2),
@@ -44,20 +44,20 @@ public static class BD {
         Block.NewSlope("Brick Slope Third Slab", 7, false, 2),*/
          
         Block.NewGrid("Framing", 5, 13),
-	    Block.NewCustomPlus("Frame", 4, 9, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
+	    Block.NewCustomPlus("Frame", 4, 9, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),//20
         Block.NewCustomPlus("Door", 5, 8, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
         Block.NewCustomPlus("Window", 11, 10, 2, CMode.Vertical, RMode.YAxis, SMode.UVAlpha, true, true, new string[0]),
         Block.NewCustomPlus("Table", 5, 6, 0, CMode.Horizontal, RMode.None, SMode.UVCutoff, true, false, new string[0]),
         Block.NewCustomPlus("Chair", 5, 5, 0, CMode.None, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
-        Block.NewCustomPlus("Fence", 4, 12, 1, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]), 
+        Block.NewCustomPlus("Fence", 4, 12, 1, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]), //25
 		Block.NewCustom("Roof", 13, 11, CMode.Horizontal, SMode.UVCutoff, true, false, new string[0] ),
 		
 		Block.NewBlock("Glass", 11, SMode.UVAlpha, true, 0),
   		Block.NewLiquid("Water", 12, 4, 16, 4),
 		Block.NewLiquidSource("Water Source", 12),
 		
-		//letztes
-		new Block("Block Combination", 0, 1, 0, 2, BType.Combination, CMode.None, RMode.None, SMode.Invisible, true, false, new string[]{"", ""}),
+		//letztes 30
+		new Block("Block Combination", 0, 1, 0, 0, BType.Combination, CMode.None, RMode.None, SMode.Invisible, true, false, new string[]{"", ""}),
 
     };	
 

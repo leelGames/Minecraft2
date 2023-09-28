@@ -117,7 +117,7 @@ public static class VD {
 	//Rechnet 90Grad RotierungsID in Euler Rotation um (unzuverlässig)
 	// 0 oben(O U R L)  4 unten(O U R L) 8 rechts(O U R L) 12 links(O U R L) 16 hinten(O U R L) 20 vorne(O U R L) 
 
-	public static readonly Vector3Int[] dirToRot2 = new Vector3Int[24] {
+	/*public static readonly Vector3Int[] dirToRot2 = new Vector3Int[24] {
 		new Vector3Int(0, 0, 0),//oo	0
 		new Vector3Int(0, 180, 0),//ou
 		new Vector3Int(0, 90, 0),//or
@@ -147,33 +147,39 @@ public static class VD {
 		new Vector3Int(270, 180, 0),//hu
 		new Vector3Int(270, 90, 0),//hr
 		new Vector3Int(270, 270, 0),//hl
-	};
-	//Von Chat GPT
-	public static readonly Vector3[] dirToRot3 = new Vector3[24] {
-		new Vector3(0f, 0f, 0f),
-		new Vector3(0f, 0f, 90f),
-		new Vector3(0f, 0f, 180f),
-		new Vector3(0f, 0f, 270f),
-		new Vector3(0f, 90f, 0f),
-		new Vector3(0f, 90f, 90f),
-		new Vector3(0f, 90f, 180f),
-		new Vector3(0f, 90f, 270f),
-		new Vector3(0f, 180f, 0f),
-		new Vector3(0f, 180f, 90f),
-		new Vector3(0f, 180f, 180f),
-		new Vector3(0f, 180f, 270f),
-		new Vector3(0f, 270f, 0f),
-		new Vector3(0f, 270f, 90f),
-		new Vector3(0f, 270f, 180f),
-		new Vector3(0f, 270f, 270f),
-		new Vector3(90f, 0f, 0f),
-		new Vector3(90f, 0f, 90f),
-		new Vector3(90f, 0f, 180f),
-		new Vector3(90f, 0f, 270f),
-		new Vector3(90f, 90f, 0f),
-		new Vector3(90f, 180f, 0f),
-		new Vector3(270f, 0f, 0f),
-		new Vector3(270f, 0f, 90f),
+	};*/
+	
+	public static readonly Quaternion[] dirToRot3 = new Quaternion[24] {
+
+		Quaternion.AngleAxis(0, new Vector3(0,1,0)),
+		Quaternion.AngleAxis(180, new Vector3(0,1,0)),
+		Quaternion.AngleAxis(90, new Vector3(0,1,0)),
+		Quaternion.AngleAxis(270, new Vector3(0,1,0)),
+
+		Quaternion.AngleAxis(0, new Vector3(0,-1,0)),
+		Quaternion.AngleAxis(180, new Vector3(0,-1,0)),
+		Quaternion.AngleAxis(90, new Vector3(0,-1,0)),
+		Quaternion.AngleAxis(270, new Vector3(0,-1,0)),
+
+		Quaternion.AngleAxis(0, new Vector3(1,0,0)),
+		Quaternion.AngleAxis(180, new Vector3(1,0,0)),
+		Quaternion.AngleAxis(90, new Vector3(1,0,0)),
+		Quaternion.AngleAxis(270, new Vector3(1,0,0)),
+
+		Quaternion.AngleAxis(0, new Vector3(-1,0,0)),
+		Quaternion.AngleAxis(180, new Vector3(-1,0,0)),
+		Quaternion.AngleAxis(90, new Vector3(-1,0,0)),
+		Quaternion.AngleAxis(270, new Vector3(-1,0,0)),
+
+		Quaternion.AngleAxis(0, new Vector3(0,0,1)),
+		Quaternion.AngleAxis(180, new Vector3(0,0,1)),
+		Quaternion.AngleAxis(90, new Vector3(0,0,1)),
+		Quaternion.AngleAxis(270, new Vector3(0,0,1)),
+
+		Quaternion.AngleAxis(0, new Vector3(0,0,-1)),
+		Quaternion.AngleAxis(180, new Vector3(0,0,-1)),
+		Quaternion.AngleAxis(90, new Vector3(0,0,-1)),
+		Quaternion.AngleAxis(270, new Vector3(0,0,-1)),
 	};
 
 	//Definiert welche Vertices zu welchem Face gehören (für verschiebung von Faces)

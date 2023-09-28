@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class World : MonoBehaviour {
 
+    public static World currend;
+
     public Settings settings;
     public Worldgen gen;
     public WorldThreading threads;
@@ -26,8 +28,9 @@ public class World : MonoBehaviour {
         Main.Init(settings);
     }
     void Start() {
-        threads = new WorldThreading(this);
-		gen = new Worldgen(this);
+        currend = this;
+        threads = new WorldThreading();
+		gen = new Worldgen();
 		chunks = new Dictionary<Vector2Int, Chunk>();
         lods = new Dictionary<Vector2Int, LODHeightMap>();
         activeChunks = new List<Chunk>();
@@ -104,7 +107,7 @@ public class World : MonoBehaviour {
 				//Chunk erstellen
 				if (!chunks.ContainsKey(new Vector2Int(x, z))) {
 					c = new GameObject().AddComponent<Chunk>();
-					c.Init(newcoord, this);
+					c.Init(newcoord);
 					chunks.Add(newcoord, c);
 					c.Active = false;
 				}
@@ -354,7 +357,7 @@ public class World : MonoBehaviour {
         if (GetBlock(pos).type >= BType.Custom) {
             a = Traverse(pos).ToArray();
             if (a.Length > 0) {
-                VoxelEntity ve = VoxelEntity.Create(this, a);
+                VoxelEntity ve = VoxelEntity.Create(a);
                 Clear(a);
                 ve.Active = true;
             }

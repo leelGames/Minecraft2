@@ -19,8 +19,8 @@ public class WorldThreading {
 	public object chunkLock;
 	public object lodLock;
 
-	public WorldThreading(World world) {
-		this.world = world;
+	public WorldThreading() {
+		world = World.currend;
 		chunkLock = new();
 		lodLock = new();
 
@@ -126,7 +126,7 @@ public class WorldThreading {
 
 public class ChunkQueue {
 	readonly LinkedList<UpdateEvent> queue;
-	//Buffer sorgt dafür, dass der selbe Chunk nicht mehrmals im gleichen Tick geupdatet werden kann (1 Tick delay)
+	//Buffer sorgt dafï¿½r, dass der selbe Chunk nicht mehrmals im gleichen Tick geupdatet werden kann (1 Tick delay)
 	readonly Stack<UpdateEvent> buffer;
 	readonly object threadLock;
 

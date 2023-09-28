@@ -4,8 +4,6 @@ using TMPro;
 public class Highlight : MonoBehaviour {
 
     public Player player;
-   
-    public World world;
     public GameObject face;
     public BoxCollider coll;
 
@@ -23,11 +21,12 @@ public class Highlight : MonoBehaviour {
     public int pslab;
 
     public Block getFacing() {
-        return world.GetBlock(breakPos);
+        return World.currend.GetBlock(breakPos);
     }
    
     //ToDo Bresenham algorithmus
 	public void PlaceHighlight(Block selected) {
+        World world = World.currend;
         dir2 = player.dir4 / 2;
         dir3 = player.dir6 / 2;
         
@@ -119,7 +118,8 @@ public class Highlight : MonoBehaviour {
     }
    
     public void RemoveBlock(Block selected) {
-    	//Block selected = BD.blocks[player.selected];
+        World world = World.currend;
+    	
 		VoxelData pos = world.GetVoxelData(breakPos);
         tcorrection = false;
         //Rounded
@@ -170,6 +170,7 @@ public class Highlight : MonoBehaviour {
 	}
   
     public void PlaceBlock(Block selected) {
+        World world = World.currend;
 		
         VoxelData placeBlock = world.GetVoxelData(blockPlacePos);
         VoxelData placeSlab = world.GetVoxelData(slabPlacePos);
@@ -252,7 +253,8 @@ public class Highlight : MonoBehaviour {
 
 
     void CombineBlock(Vector3Int pos, Block selected, byte[] selectedData) {
-        Debug.Log(selectedData[0]);
+        World world = World.currend;
+       
         VoxelData placed = world.GetVoxelData(pos);
         if (true) {//Bounds nicht überlappen oder sonderregeln
             byte[] data = new byte[placed.block.dataSize.Length + selected.dataSize.Length + 2];
@@ -268,7 +270,7 @@ public class Highlight : MonoBehaviour {
 
             world.SetVoxel(pos, BD.blocks.Length - 1, data);
         }
-        Debug.Log("Combine Voxel: " + selected.blockName + ", " + placed.block.blockName);
+        //Debug.Log("Combine Voxel: " + selected.blockName + ", " + placed.block.blockName);
     }
 
     int CalcDir12(Vector3 pos, Vector3Int norm) {

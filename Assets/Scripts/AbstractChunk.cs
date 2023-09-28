@@ -4,7 +4,6 @@ using UnityEngine;
 
 public abstract class AChunk : MonoBehaviour{
 	public VoxelRenderer render;
-
 	public MeshRenderer meshRenderer;
 	public MeshFilter meshFilter;
 	public MeshCollider meshCollider;
