@@ -9,7 +9,6 @@ public class Inventory : UIAbstractContainer, IPointerDownHandler {
     public CreativeInventory content;
 
     public void Init() {
-        Debug.Log("Start");
         slotObjects = new();
         content = player.GetCreativeInventory();
     }

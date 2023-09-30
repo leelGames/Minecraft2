@@ -12,14 +12,16 @@ public class Player : MonoBehaviour {
     public Inventory inventory;
     public CharacterController controller;
     public InventoryManager inventoryM;
-    //public MovementManager movement;
+  
     public GameObject crosshair;
 
-    public bool inUI;
+    int layermask;
+
+    public bool inUI = false;
     public int dir4;
     public int dir6;
-    public bool useDir;
 
+    public float sensitivity;
     public float reach;
     public float walkSpeed;
     public float sprintSpeed;
@@ -32,46 +34,38 @@ public class Player : MonoBehaviour {
     float mouseX;
     float mouseY;
     float jump;
-    bool hold = true;
-    float verticalMomentumn;
-    float realGravity;
+    bool sprint;
+    bool fly;
+    bool grounded;
+
+    float speedEffect = 1;
+    float time;
     Vector3 velocity;
 
-    int jumpState; //0: Nix 1: jump 2: hover 3:flyup 4: flydown
-    bool isSprinting;
-
     public Vector3Int Position {
-        get { return Vector3Int.FloorToInt(transform.position); }
+        get { return Vector3Int.RoundToInt(transform.position); }
         set { transform.position = value; }
     }
     public Vector3 Facing {
         get { return cam.transform.forward; }
     }
 
-    void Start() {
+    void Start() { 
         client = this;
+        layermask = ~LayerMask.GetMask("Player");
+        cam.farClipPlane = (Main.s.lodrenderDistance + 1) * VD.LODWidth;
+       
         inventoryM = new(this);
         inventory.Init(); //Unity buggt rum und ruft startet Inventory nicht
-		//debugscreen.gameObject.SetActive(false);
-        realGravity = gravity;
-        jumpState = 0;
-        cam.farClipPlane = (Main.s.lodrenderDistance + 1) * VD.LODWidth;
-       // highlight.select(ID.items[0]);
-        inUI = false;
+	
         Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update() {
+        grounded = Physics.CheckSphere(transform.position - new Vector3(0f, transform.localScale.y, 0f), 0.4f, layermask);
         GetPlayerInput();
-        GetJumpState();
-        //Umsehen
-        transform.Rotate(Vector3.up * mouseX);
-        cam.transform.Rotate(Vector3.right * -mouseY);
-        controller.Move(velocity);
-
-        CalcVelocity();
         CalcDirection();
-
+        CalcMovement();
         highlight.PlaceHighlight(inventoryM.selected);
     }
 
@@ -86,36 +80,26 @@ public class Player : MonoBehaviour {
         }
     }*/
 
-    void OpenInventory() {
-        inventory.Load();
-        inventory.gameObject.SetActive(true);
-        highlight.gameObject.SetActive(false);
-        crosshair.SetActive(false);
-        Cursor.lockState = CursorLockMode.None;
-    }
-    void CloseInventory() {
-        inventory.gameObject.SetActive(false);
-        highlight.gameObject.SetActive(true);
-        crosshair.SetActive(true);
-		Cursor.lockState = CursorLockMode.Locked;
-    }
-
     void GetPlayerInput() {
-        if (Input.GetButtonDown("Cancel") || Input.GetKeyDown(KeyCode.E)) {
+        if (Input.GetButtonDown("Inventory")) {
             inUI = !inUI;
             if (inUI) OpenInventory();
             else CloseInventory();
         }
-        if (hold) hold = false;
-        if (jump != 0) hold = true;
-        horizontal = Input.GetAxis("Horizontal");
+        horizontal = Input.GetAxis("Horizontal") ;
         vertical = Input.GetAxis("Vertical");
-        mouseX = Input.GetAxis("Mouse X");
-        mouseY = Input.GetAxis("Mouse Y");
+        mouseX += Input.GetAxis("Mouse X") * sensitivity;
+        mouseY += Input.GetAxis("Mouse Y") * sensitivity;
+        mouseY = Mathf.Clamp(mouseY, -90f, 90f);
         jump = Input.GetAxis("Jump");
-
-        if (Input.GetButtonDown("Sprint")) isSprinting = true;
-        else if (Input.GetButtonUp("Sprint")) isSprinting = false;
+        sprint = Input.GetButton("Sprint");
+        
+        if ( Input.GetButtonDown("Jump")) {
+            if (Time.time - time < 0.3f) {
+                fly = !fly;
+            }
+            time = Time.time;
+        }
 
         if (highlight.gameObject.activeSelf) {
             //Blöcke abbauen
@@ -138,60 +122,58 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-    public CreativeInventory GetCreativeInventory() {
-        CreativeInventory inventory = new();
-        for (int i = 1; i < ID.items.Length; i++) {
-            inventory.add(ID.items[i]);
-        }
-        return inventory;
-    }
-
-    //Logik für Springen und Fliegen
-    void GetJumpState() {
-        if (controller.isGrounded) jumpState = 0;
-
-        if (jumpState == 0 && jump > 0) {
-            jumpState = 1;
-            verticalMomentumn = jumpForce * jump;
-        } else if (jumpState == 1 && jump > 0 && !hold) {
-            jumpState = 2;
-            realGravity = 0;
-        } else if (jumpState == 3 && jump > 0 && !hold) {
-            jumpState = 1;
-            realGravity = gravity;
-        } else if (jumpState > 1 && jump > 0) {
-            jumpState = 3;
-            verticalMomentumn = jumpForce * jump;
-        } else if (jumpState > 1 && jump < 0) {
-            jumpState = 4;
-            verticalMomentumn = jumpForce * jump;
-        } else if (jumpState > 1) verticalMomentumn = 0;
-    }
-
-    void CalcVelocity() {
-        //Gravitation
-        if (!controller.isGrounded) verticalMomentumn += Time.deltaTime * realGravity;
-        if (isSprinting && jumpState > 1) verticalMomentumn *= sprintSpeed;
+    void CalcMovement() {
+        //Umsehen
+        transform.rotation = Quaternion.Euler(Vector3.up * mouseX);
+        cam.transform.localRotation = Quaternion.Euler(Vector3.left * mouseY);
+        
+        //Kollison für nicht solid
+        Block b = World.currend.GetBlock(Position);
+        if (b.type == BType.Air || b.isSolid) speedEffect = 1f;
+        else speedEffect = 0.3f;
 
         //Bewegung
-        velocity = (transform.forward * vertical + transform.right * horizontal) * Time.deltaTime;
-        if (isSprinting && jumpState > 1) velocity *= flySpeed;
-        else if (isSprinting || jumpState > 1) velocity *= sprintSpeed;
-        else velocity *= walkSpeed;
+        Vector3 move = (transform.forward * vertical + transform.right * horizontal) * speedEffect;
+        if (fly) {
+            move += transform.up * jump * 0.5f;
+            if (sprint) move *= flySpeed;
+            else move *= sprintSpeed;
+        }
+        else if (sprint) move *= sprintSpeed;
+        else move *= walkSpeed;
 
-        velocity += verticalMomentumn * Time.deltaTime * Vector3.up;
+        controller.Move(move * Time.deltaTime);
+        
+        //Gravitation v = 0.5g * t^2
+        if (grounded && velocity.y < 0) velocity.y = -0.1f;
+        else if (fly) velocity.y = 0f;
+        else velocity.y += gravity * speedEffect * Time.deltaTime;
 
-        //TODO Kollison f�r nicht solid
-        /*if (!world.getBlock(transform.position).isSolid) {
-             velocity /= 6;
-         }*/
+        if (jump >= 1f && grounded) {
+            velocity.y = Mathf.Sqrt(jumpForce * gravity * speedEffect * -2f);
+        }
+
+        controller.Move(velocity * Time.deltaTime);    
+    }
+
+    void OpenInventory() {
+        inventory.Load();
+        inventory.gameObject.SetActive(true);
+        highlight.gameObject.SetActive(false);
+        crosshair.SetActive(false);
+        Cursor.lockState = CursorLockMode.None;
+    }
+    void CloseInventory() {
+        inventory.gameObject.SetActive(false);
+        highlight.gameObject.SetActive(true);
+        crosshair.SetActive(true);
+		Cursor.lockState = CursorLockMode.Locked;
     }
 
     //Richtung berechnen
     void CalcDirection() {
-
         //6-Achsen (+x-x+y-y+z-z)
-        Vector3 facing = cam.transform.forward;
+        Vector3 facing = Facing;
 
         if (Vector3.Angle(facing, Vector3.forward) < 45) {
             dir6 = 5;
@@ -218,5 +200,12 @@ public class Player : MonoBehaviour {
         } else {
             dir4 = 0;
         }
+    }
+    public CreativeInventory GetCreativeInventory() {
+        CreativeInventory inventory = new();
+        for (int i = 1; i < ID.items.Length; i++) {
+            inventory.add(ID.items[i]);
+        }
+        return inventory;
     }
 }

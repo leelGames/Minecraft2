@@ -39,7 +39,7 @@ public class World : MonoBehaviour {
 
 		//Spieler platzieren
 		spawnPoint = new Vector2Int(10 * VD.ChunkWidth / 2, 10 * VD.ChunkWidth / 2);
-        player.Position = new Vector3Int(spawnPoint.x, gen.GenerateTerrain(spawnPoint).terrainheight + 2, spawnPoint.y);
+        player.Position = new Vector3Int(spawnPoint.x, gen.GenerateTerrain(spawnPoint).terrainheight + 3, spawnPoint.y);
         player.highlight.breakPos = player.Position;
         playerChunkCoord = GetChunkCoord(player.Position) + Vector2Int.one;
         playerLodCoord = GetLodCoord(player.Position) + Vector2Int.one; 
