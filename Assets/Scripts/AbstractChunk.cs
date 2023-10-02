@@ -108,13 +108,13 @@ public abstract class AChunk : MonoBehaviour{
 		return voxelMap[pos.x, pos.y, pos.z] >> 11;
 	}
 	protected void SetVoxel(int x, int y, int z, int id) {
-		voxelMap[x, y, z] = (ushort) id;
+		voxelMap[x, y, z] = (ushort) ((voxelMap[x, y, z] & 0x0400) | id);
 	}
-	public virtual void SetVoxel(Vector3Int pos, int id) {
-		voxelMap[pos.x, pos.y, pos.z] = (ushort) id;
+	public void SetVoxel(Vector3Int pos, int id) {
+		voxelMap[pos.x, pos.y, pos.z] = (ushort) ((voxelMap[pos.x, pos.y, pos.z] & 0x0400) | id);
 	}
-	public virtual void SetVoxel(Vector3Int pos, int id, int atr) {
-		voxelMap[pos.x, pos.y, pos.z] = (ushort)((atr << 11) | id);
+	public void SetVoxel(Vector3Int pos, int id, int atr) {
+		voxelMap[pos.x, pos.y, pos.z] = (ushort)((voxelMap[pos.x, pos.y, pos.z] & 0x0400) | (atr << 11) | id);
 	}
 
 	public void SetFlag(Vector3Int pos, bool f) {

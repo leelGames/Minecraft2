@@ -94,10 +94,16 @@ public class Chunk : AChunk {
 	public override void UpdateChunk(UpdateEvent e) {
 		if (e.lod != -1) level = e.lod;
 		else e.lod = level;
-
+		int min;
+		int max;
 		for (int x = 0; x < VD.ChunkWidth; x++) {
 			for (int z = 0; z < VD.ChunkWidth; z++) {
-				for (int y = genData[x, z].minheight - 3; y < genData[x, z].maxheight + 2; y++) {
+				min = genData[x, z].minheight - 3;
+				min = min < 0 ? 0 : min;
+				max = genData[x, z].maxheight + 2;
+				max = max > VD.ChunkHeight ? VD.ChunkHeight : max;
+			
+				for (int y = min; y < max; y++) {
 					render.UpdateMesh(e, new Vector3Int(x, y, z));
 				}
 			}

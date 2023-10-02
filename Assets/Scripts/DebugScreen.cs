@@ -15,10 +15,10 @@ public class DebugScreen : MonoBehaviour {
 		Chunk c = w.GetChunkC(w.playerChunkCoord);
 		try {
             string debugText = "";
-            debugText += fps + "fps " + tps + "tps\n";
+            debugText += fps + "fps " + tps + "tps" + "Ticklag: " + (w.time - w.threads.fixedTime) + "\n";
             debugText += "X: " + p.Position.x + " Y: " + p.Position.y + " Z: " + p.Position.z + "\n";
             debugText += "Chunk: " + w.playerChunkCoord.x + " " + w.playerChunkCoord.y + " " + chunkstates[c.state] + "\n" ;
-            debugText += "Chunkqueue: G: " + w.threads.chunksToGenerate.Count + " U: " + w.threads.chunksToUpdate.Count + " D: " + w.threads.chunksToDraw.Count + " B: " + w.blocksToUpdate.Count + " L: " + w.threads.lodsToUpdate.Count + "D: " + w.threads.lodsToDraw.Count + "\n";
+            debugText += "Chunkqueue: G: " + w.threads.chunksToGenerate.Count + " U: " + w.threads.chunksToUpdate.Count + " D: " + w.threads.chunksToDraw.Count + " B: " + w.threads.blocksToUpdate.Count + " L: " + w.threads.lodsToUpdate.Count + "D: " + w.threads.lodsToDraw.Count + "\n";
             debugText += "Facing: " + p.dir4 + " " + p.highlight.dir12 + " " + faceingNames[p.dir6] + "\n";
             debugText += "BBlock: " + GetBlockInfo(w.GetVoxelData(p.highlight.breakPos)) + "\n";
 			debugText += "PBlock: " + GetBlockInfo(w.GetVoxelData(p.highlight.blockPlacePos)) + "\n";
@@ -27,7 +27,8 @@ public class DebugScreen : MonoBehaviour {
             debugText += "BreakSlap: " + p.highlight.bslab + " PlaceSlap: " + p.highlight.pslab + "\n";
             //debugText += world.GetBounds(world.player.highlight.breakPos).min.ToString("F10") + " " + world.GetBounds(world.player.highlight.breakPos).max.ToString("F10");
             //debugText += world.IsGrounded(world.player.highlight.breakPos);
-			text.text = debugText;
+			debugText += getFlag(p.highlight.blockPlacePos);
+            text.text = debugText;
         }
         //Anfällig für Exceptions
         catch (Exception e) { text.text = "Could not read all Debug Data:\n" + e.Message; }
@@ -62,6 +63,11 @@ public class DebugScreen : MonoBehaviour {
         }
         return info;
 	}
+
+    bool getFlag(Vector3Int pos) {
+        Chunk c = World.currend.GetChunkP(pos);
+        return c.GetFlag(pos - c.Position);
+    }
 
 
     static readonly string[] chunkstates = { "Initialising..", "Generating Terrain...", "Generating Structures.", "Updating..", "Drawing Mesh...", "" };

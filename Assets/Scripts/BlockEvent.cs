@@ -6,14 +6,16 @@ public class DynamicWater : Block {
 	public int layers;
 	public int delay;
 
-	public DynamicWater(string name, int texture, int flowAmount, int layer, int speed) : base(name, texture, 4, layer, 0, BType.Liquid, CMode.None, RMode.None, SMode.Water, false, true, new string[] { "Waterheight" }) {
+	System.Random random;
+
+	public DynamicWater(string name, int texture, int flowAmount, int layer, int speed) : base(name, texture, 4, layer, 0, BType.Liquid, CMode.None, RMode.None, SMode.UVAlpha, false, true, new string[] { "Waterheight" }) {
 		amount = flowAmount;
 		layers = layer;
 		delay = speed;
+		random = new();
 	}
 
 	public override bool OnBlockUpdate(Chunk chunk, Vector3Int pos) {
-	
 		int volume = chunk.GetVoxelAtr(pos);
 		int prevolume = volume;
 		int flowAmount = amount;
@@ -67,7 +69,7 @@ public class DynamicWater : Block {
 				}
 				if (flows.Count == 0) continue;
 				while (flows.Count > 0 && volume > minvolume && flowAmount > 0) {
-					r = flows[Random.Range(0, flows.Count)];
+					r = flows[Mathf.FloorToInt((float)random.NextDouble() * flows.Count)];
 					volumes[r]++;
 					volume--;
 					flowAmount--;
@@ -109,7 +111,6 @@ public class StaticWater : Block {
 		int nextAtr;
 		bool update = false;
 		
-
 		int level = chunk.GetVoxelAtr(pos);
 
 		for (int i = 2; i < 6; i++) {
@@ -138,22 +139,20 @@ public class StaticWater : Block {
 			chunk.world.AddBlockEvent(new BlockEvent(pos + chunk.Position + Vector3Int.down, dynamic.delay));
 			update = true;
 		}
-		
 		return update;
-
 	}
 }
 
-public struct BlockEvent {
+public class BlockEvent {
 	public Vector3Int pos;
-	public int delay;
+	public int time;
 
 	public BlockEvent(Vector3Int pos, int delay) {
 		this.pos = pos;
-		this.delay = delay;
+		this.time = World.currend.time + delay;
 	}
 
-	public BlockEvent Tick() {
+	/*public BlockEvent Tick() {
 		return new BlockEvent(pos, delay - 1);
-	}
+	}*/
 }

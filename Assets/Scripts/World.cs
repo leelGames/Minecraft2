@@ -12,7 +12,7 @@ public class World : MonoBehaviour {
     public WorldThreading threads;
     public Player player;
 
-	public List<BlockEvent> blocksToUpdate;
+	//public List<BlockEvent> blocksToUpdate;
 
     public Vector2Int playerChunkCoord;
     public Vector2Int playerLodCoord;
@@ -23,6 +23,8 @@ public class World : MonoBehaviour {
     Dictionary<Vector2Int, LODHeightMap> lods;
     List<Chunk> activeChunks;
     List<LODHeightMap> activeLods;
+
+    public int time = 0;
 
     void Awake() {
         Main.Init(settings);
@@ -35,7 +37,7 @@ public class World : MonoBehaviour {
         lods = new Dictionary<Vector2Int, LODHeightMap>();
         activeChunks = new List<Chunk>();
         activeLods = new List<LODHeightMap>();
-        blocksToUpdate = new();
+       // blocksToUpdate = new();
 
 		//Spieler platzieren
 		spawnPoint = new Vector2Int(10 * VD.ChunkWidth / 2, 10 * VD.ChunkWidth / 2);
@@ -58,7 +60,7 @@ public class World : MonoBehaviour {
     }
 
     void FixedUpdate() {
-        HandleBlockEvents();
+        time++;
 
         //neue Chunks laden wenn der Spieler sich bewegt
         if (!(GetChunkCoord(player.Position) + Vector2Int.one).Equals(playerChunkCoord)) {
@@ -74,21 +76,6 @@ public class World : MonoBehaviour {
     void Update() {
         threads.Draw();
     }
-
-    void HandleBlockEvents() { 
-        Chunk c;
-        for (int i = 0; i < blocksToUpdate.Count; i++) {
-            if (blocksToUpdate[i].delay == 0) {
-                c = GetChunkP(blocksToUpdate[i].pos);
-                if (c.GetBlock(blocksToUpdate[i].pos - c.Position).OnBlockUpdate(c, blocksToUpdate[i].pos - c.Position)) {
-                    UpdateBlockFast(blocksToUpdate[i].pos);
-                    //threads.chunksToUpdate.AddBuffer(new UpdateEvent(GetChunkCoord(blocksToUpdate[i].pos), 0, true, false));
-                }
-            }
-            blocksToUpdate[i] = blocksToUpdate[i].Tick();
-        }
-        blocksToUpdate.RemoveAll(e => e.delay == -1);
-	}
 
     void LoadChunks(Vector2Int coord) {
         Chunk c;
@@ -277,21 +264,27 @@ public class World : MonoBehaviour {
 			if (d.maxheight < newpos.y) { d.maxheight = pos.y; d.lodcolor = (byte) GetVoxel(pos); } 
             if (d.minheight > newpos.y) d.minheight = newpos.y;
 		}
-
-        blocksToUpdate.Add(new BlockEvent(pos, 2));
+        int updateDelay = GetBlock(pos).type == BType.Liquid ? 4 : 1;
+        AddBlockEvent(new BlockEvent(pos, updateDelay));
         
         for (int i = 0; i < 6; i++) {
-            blocksToUpdate.Add(new BlockEvent(pos + VD.dirs[i], 1));
+            AddBlockEvent(new BlockEvent(pos + VD.dirs[i], updateDelay));
 		}
        
 	}
 
-    public bool AddBlockEvent(BlockEvent e) {
-        for (int i = 0; i < blocksToUpdate.Count; i++) {
-            if (blocksToUpdate[i].pos == e.pos) return false;
+    public void AddBlockEvent(BlockEvent e) {
+        /*for (int i = 0; i < threads.blocksToUpdate.Count; i++) {
+            if (threads.blocksToUpdate.items[i].pos == e.pos) {Debug.Log("scheise"); break;}
         }
-        blocksToUpdate.Add(e);
-        return true;
+        threads.blocksToUpdate.Add(e); */
+        
+        Chunk c = GetChunkP(e.pos);
+        if (c.GetFlag(e.pos - c.Position) == false) {
+            c.SetFlag(e.pos - c.Position, true);
+            threads.blocksToUpdate.Add(e); 
+        }
+        //else Debug.Log("skiped update");
     }
 
     //Befindet sich der block Vertikal im Bereich der Welt

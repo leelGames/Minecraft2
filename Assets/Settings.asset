@@ -47,13 +47,13 @@ MonoBehaviour:
   - {fileID: 1081147127, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
   - {fileID: -1197770114, guid: 923778162b1ce4c42a375932c9845bea, type: 3}
   colorMap: {fileID: 2800000, guid: 544749cc3ccc5ec478d1a019633d53d2, type: 2}
-  renderDistance: 6
-  closeLods: 0
-  farLods: 0
-  lodrenderDistance: 6
+  renderDistance: 16
+  closeLods: 1
+  farLods: 1
+  lodrenderDistance: 12
   fog: 1
   fogColor: {r: 0.7568628, g: 0.86666673, b: 0.9215687, a: 0}
   fogstart: -1
   fogend: 1
   seed: 0
-  voxelentities: 1
+  voxelentities: 0
