@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class VoxelRenderer {
 	readonly AChunk chunk;
@@ -28,15 +27,15 @@ public class VoxelRenderer {
 	
 	public VoxelRenderer(AChunk chunk) {
 		this.chunk = chunk;
-		vertices = new();
-		uvs = new();
-		terrainTris = new();
-		transparentTris = new();
-		uvTris = new();
-		waterTris = new();
-		solidverts = new();
-		solidTris = new();
-		uvs2 = new();
+		vertices = new(200);
+		uvs = new(200);
+		terrainTris = new(200);
+		transparentTris = new(200);
+		uvTris = new(200);
+		waterTris = new(200);
+		solidverts = new(200);
+		solidTris = new(200);
+		uvs2 = new(200);
 	}
 
 	public void UpdateMesh(UpdateEvent e, Vector3Int pos) {

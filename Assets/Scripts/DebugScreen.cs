@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using TMPro;
+using System.Text;
 
 public class DebugScreen : MonoBehaviour {
     public TextMeshProUGUI text;
@@ -14,21 +15,21 @@ public class DebugScreen : MonoBehaviour {
         Player p = Player.client;
 		Chunk c = w.GetChunkC(w.playerChunkCoord);
 		try {
-            string debugText = "";
-            debugText += fps + "fps " + tps + "tps" + "Ticklag: " + (w.time - w.threads.fixedTime) + "\n";
-            debugText += "X: " + p.Position.x + " Y: " + p.Position.y + " Z: " + p.Position.z + "\n";
-            debugText += "Chunk: " + w.playerChunkCoord.x + " " + w.playerChunkCoord.y + " " + chunkstates[c.state] + "\n" ;
-            debugText += "Chunkqueue: G: " + w.threads.chunksToGenerate.Count + " U: " + w.threads.chunksToUpdate.Count + " D: " + w.threads.chunksToDraw.Count + " B: " + w.threads.blocksToUpdate.Count + " L: " + w.threads.lodsToUpdate.Count + "D: " + w.threads.lodsToDraw.Count + "\n";
-            debugText += "Facing: " + p.dir4 + " " + p.highlight.dir12 + " " + faceingNames[p.dir6] + "\n";
-            debugText += "BBlock: " + GetBlockInfo(w.GetVoxelData(p.highlight.breakPos)) + "\n";
-			debugText += "PBlock: " + GetBlockInfo(w.GetVoxelData(p.highlight.blockPlacePos)) + "\n";
-            debugText += "SPBlock: " + GetBlockInfo(w.GetVoxelData(p.highlight.slabPlacePos)) + "\n";
-			debugText += "Biome: " + BiomeData.biomes[w.GetGenData(p.Position).TerrainData.biomeid].name + "\n";
-            debugText += "BreakSlap: " + p.highlight.bslab + " PlaceSlap: " + p.highlight.pslab + "\n";
-            //debugText += world.GetBounds(world.player.highlight.breakPos).min.ToString("F10") + " " + world.GetBounds(world.player.highlight.breakPos).max.ToString("F10");
-            //debugText += world.IsGrounded(world.player.highlight.breakPos);
-			debugText += getFlag(p.highlight.blockPlacePos);
-            text.text = debugText;
+            StringBuilder debugText = new();
+            debugText.Append(fps + "fps " + tps + "tps" + "Ticklag: " + (w.time - w.threads.fixedTime) + "\n");
+            debugText.Append("X: " + p.Position.x + " Y: " + p.Position.y + " Z: " + p.Position.z + "\n");
+            debugText.Append("Chunk: " + w.playerChunkCoord.x + " " + w.playerChunkCoord.y + " " + chunkstates[c.state] + "\n");
+            debugText.Append("Chunkqueue: G: " + w.threads.chunksToGenerate.Count + " U: " + w.threads.chunksToUpdate.Count + " D: " + w.threads.chunksToDraw.Count + " B: " + w.threads.blocksToUpdate.Count + " L: " + w.threads.lodsToUpdate.Count + "D: " + w.threads.lodsToDraw.Count + "\n");
+            debugText.Append("Facing: " + p.dir4 + " " + p.highlight.dir12 + " " + faceingNames[p.dir6] + "\n");
+            debugText.Append("BBlock: " + GetBlockInfo(w.GetVoxelData(p.highlight.breakPos)) + "\n");
+			debugText.Append("PBlock: " + GetBlockInfo(w.GetVoxelData(p.highlight.blockPlacePos)) + "\n");
+            debugText.Append("SPBlock: " + GetBlockInfo(w.GetVoxelData(p.highlight.slabPlacePos)) + "\n");
+			debugText.Append("Biome: " + BiomeData.biomes[w.GetGenData(p.Position).TerrainData.biomeid].name + "\n");
+            debugText.Append("BreakSlap: " + p.highlight.bslab + " PlaceSlap: " + p.highlight.pslab + "\n");
+			debugText.Append(getFlag(p.highlight.blockPlacePos));
+            
+            
+            text.text = debugText.ToString();
         }
         //Anfällig für Exceptions
         catch (Exception e) { text.text = "Could not read all Debug Data:\n" + e.Message; }

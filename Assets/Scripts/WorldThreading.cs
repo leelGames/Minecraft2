@@ -68,7 +68,7 @@ public class WorldThreading {
 		Vector3Int pos;
         Chunk c;
 	
-		while (blocksToUpdate.Count > 0 && blocksToUpdate.Peek().time == world.time) {
+		while (blocksToUpdate.Count > 0 && blocksToUpdate.Peek().time == fixedTime) {
 			pos = blocksToUpdate.Get();
 			c = world.GetChunkP(pos);
 			c.SetFlag(pos - c.Position, false);
@@ -94,8 +94,7 @@ public class WorldThreading {
 				chunk.state = 5;
 			}
 		}
-		//if (chunksToUpdate.Count == 0)
-		chunksToUpdate.ClearBuffer();
+		if (chunksToUpdate.Count == 0) chunksToUpdate.ClearBuffer();
 
 		while (lodsToDraw.Count > 0) {
 			lod = world.GetLodC(lodsToDraw.Remove().coord);
