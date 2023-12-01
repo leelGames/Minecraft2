@@ -108,27 +108,29 @@ Git Repository verwenden
 
 pre-alpha 0.33     Connect-Customslabs, neue Blöcke und Texturen, Hotbar und Kreativinventar
 
+10 2023
+
+pre-alpha 0.34     Umbau des BlockEvent-Systems, BlockUpdate-Thread, Verbesserung des Playercontrollers, allgemeine Optimierungen
+
 ## Bugs
 
 - VoxelEntitys platzieren sich falsch rotiert
 
-- SlopeSlabs stacken nicht
+- SlopeSlab-Voxelentitys platzieren nicht
 
-- Falsche Highlight platzierung bei Terrain
+- Löcher im Mesh (bei Block auf Terrain, umschlossene Customs)
 
-- Löcher im Mesh (bei Block auf Terrain, umschlossene customs)
-
-- Fehler durch nicht fertige Metadaten
-
-- seltene Abstürze bei generierung und Interaktion mit Wasser
+- Stetig steigender Speicherverbrauch bei vielen Chunkupdates
 
 ## ToDo
 
+-   Blöcke und Texture hinzufügen
+
+-   Weltgeneration überarbeiten
+    
 -   Performance Verbesserungen (Shader, Generierung...)
 
 -   Voxelentity-Connectregeln verbessern
-
--   Playercontoller überarbeiten
 
 -   Meshcollider optimieren
 
@@ -136,9 +138,7 @@ pre-alpha 0.33     Connect-Customslabs, neue Blöcke und Texturen, Hotbar und Kr
 
 -   Subchunks neu machen (Cubic chunks?)
 
--   Wassermesh finalisieren
-
--   Wasserphysik fixen (Performance, falsche quellen)
+-   Raycast Chunkupdates
 
 -   Lösung für fehlerfreie Connect-Blöcke finden
 
@@ -148,7 +148,7 @@ Pre-alpha:
 
 -    Blocktypen
 
--    Block events
+-    Block Events
 
 -    Lod
 
