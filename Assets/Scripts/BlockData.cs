@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 
 public enum BType { Air, Liquid, Terrain, Rounded, Custom, Voxel, Slope, Combination }
-public enum CMode { None, Horizontal, Vertical, Grid, Pipe, Random }
+public enum CMode { None, Horizontal, Vertical, Grid, Pipe, Roof, Random }
 public enum RMode { None, AllAxis3, YAxis, AllAxis6, Slope }
 public enum SMode { UV, UVCutoff, UVAlpha, Triplanar, Water, Invisible }
 public enum VECMode { All, Self, SameBlock, SameType, SameCMode, }//VoxelEntityConnectmode
@@ -24,8 +24,8 @@ public static class BD {
 		Block.NewPipe("Tree Stem", 4, 0),	
 		Block.NewPipe("Tree Branch", 4, 1),
 		
-		Block.NewCustom("Leaves", 9, 3, CMode.Random, SMode.UVCutoff, false, true, new string[] {"TreeID"}),//10
-        Block.NewCustom("Grass Plant", 15, 4, CMode.Random, SMode.UVCutoff, false, true, new string[0]),
+		Block.NewCustom("Leaves", 9, 5, CMode.Random, SMode.UVCutoff, false, true, new string[] {"TreeID"}),//10
+        Block.NewCustom("Grass Plant", 15, 6, CMode.Random, SMode.UVCutoff, false, true, new string[0]),
         Block.NewPipe("Cactus", 14, 1),
 		
 		Block.NewBlock("Wood Planks", 5, SMode.Triplanar, false, 0),
@@ -43,14 +43,14 @@ public static class BD {
         Block.NewSlope("Brick Slope Half Slab", 7, false, 1),
         Block.NewSlope("Brick Slope Third Slab", 7, false, 2),*/
          
-        Block.NewGrid("Framing", 5, 13),
-	    Block.NewCustomPlus("Frame", 4, 9, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),//20
-        Block.NewCustomPlus("Door", 5, 8, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
-        Block.NewCustomPlus("Window", 11, 10, 2, CMode.Vertical, RMode.YAxis, SMode.UVAlpha, true, true, new string[0]),
-        Block.NewCustomPlus("Table", 5, 6, 0, CMode.Horizontal, RMode.None, SMode.UVCutoff, true, false, new string[0]),
-        Block.NewCustomPlus("Chair", 5, 5, 0, CMode.None, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
-        Block.NewCustomPlus("Fence", 4, 12, 1, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]), //25
-		Block.NewCustom("Roof", 13, 11, CMode.Horizontal, SMode.UVCutoff, true, false, new string[0] ),
+        Block.NewGrid("Framing", 5, 3),
+	    Block.NewCustomPlus("Frame", 4, 10, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),//20
+        Block.NewCustomPlus("Door", 5, 12, 2, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
+        Block.NewCustomPlus("Window", 11, 11, 2, CMode.Vertical, RMode.YAxis, SMode.UVAlpha, true, true, new string[0]),
+        Block.NewCustomPlus("Table", 5, 8, 0, CMode.Horizontal, RMode.None, SMode.UVCutoff, true, false, new string[0]),
+        Block.NewCustomPlus("Chair", 5, 7, 0, CMode.None, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]),
+        Block.NewCustomPlus("Fence", 4, 9, 1, CMode.Vertical, RMode.YAxis, SMode.UVCutoff, true, false, new string[0]), //25
+		Block.NewCustom("Roof", 13, 13, CMode.Roof, SMode.UVCutoff, true, false, new string[0] ),
 		
 		Block.NewBlock("Glass", 11, SMode.UVAlpha, true, 0),
   		Block.NewLiquid("Water", 12, 4, 16, 4),
@@ -62,7 +62,44 @@ public static class BD {
     };	
 
 	//Gibt an wie viele Meshs ein block annehmen kann (im Meshtable)
-	public static int[] meshcount = { 192, 192, 63, 3, 3, 1, 16, 1, 16, 15, 16, 16, 16, 64};
+	public static int[] meshcount = { 192, 192, 63, 64, 2, 3, 3, 1, 16, 16, 15, 16, 16, 81};
+	public static int[] roofindexes = {
+		 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+		16, -1, 17, -1, 18, -1, 19, -1, 20, -1, 21, -1, 22, -1, 23, -1,
+		24, 25, -1, -1, 26, 27, -1, -1, 28, 29, -1, -1, 30, 31, -1, -1,
+		32, -1, -1, -1, 33, -1, -1, -1, 34, -1, -1, -1, 35, -1, -1, -1,
+		36, 37, 38, 39, -1, -1, -1, -1, 40, 41, 42, 43, -1, -1, -1, -1, 
+		44, -1, 45, -1, -1, -1, -1, -1, 46, -1, 47, -1, -1, -1, -1, -1,
+		48, 49, -1, -1, -1, -1, -1, -1, 50, 51, -1, -1, -1, -1, -1, -1,
+		52, -1, -1, -1, -1, -1, -1, -1, 53, -1, -1, -1, -1, -1, -1, -1,
+		54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, -1, -1,
+		62, -1, 63, -1, 64, -1, 65, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		66, 67, -1, -1, 68, 69, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		70, -1, -1, -1, 71, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		72, 73, 74, 75, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		76, -1, 77, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		78, 79, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		80, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+
+		/*
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,
+		16,   18,   20,   22,   24,   26,   28,   30,
+		32,33,      36,37,      40,41,      44,45,
+		48,         52,         56,         60,
+		64,65,66,67,68,         72,73,74,75,
+		80,   82,               88,   90,
+		96,97,                  104,105,
+		112,                    120,
+		128,129,130,131,132,133,134,135,
+		144,  146,  148,  150,
+		160,161,    164,165,
+		176,        180,
+		192,193,194,195,
+		208,    210,
+		224,225,
+		240
+		*/
+	};
 
 	public static int GetByName(string name) {
 		foreach (Block b in blocks) if (b.blockName == name) return b.id;

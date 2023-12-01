@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class VoxelRenderer {
@@ -197,8 +198,22 @@ public class VoxelRenderer {
 						meshIndex |= 1 << i;
 					}
 				}
-				meshIndex += thisAtr * 64;
-			} else {//Horizontal und vertical
+				//meshIndex += thisAtr * 64;
+				if (thisAtr == 0) meshIndex += 64;
+				else if (thisAtr == 2) meshIndex += 128;
+			} else if (thisBlock.connectMode == CMode.Roof) {
+			
+				for (int i = 0; i < 4; i++) {
+					if (chunk.CheckBlock(pos + VD.dirs[i + 2] + Vector3Int.up).id == thisBlock.id) {
+						meshIndex |= 1 << (i + 4);
+					}
+					else if (chunk.CheckBlock(pos + VD.dirs[i + 2]).id == thisBlock.id) {
+						meshIndex |= 1 << i;
+					}
+				}
+				meshIndex = BD.roofindexes[meshIndex];
+			}
+			else {//Horizontal und vertical
 				int offset;
 				Vector3Int next;
 				if (thisBlock.connectMode == CMode.Horizontal) offset = 2;
@@ -209,7 +224,8 @@ public class VoxelRenderer {
 						meshIndex |= 1 << i;
 					}
 				}
-				if (meshIndex == 15) return 0;
+				//Fix unsichtbare rahmen
+				if (thisBlock.id == 20 && meshIndex == 15) return 0;
 			}
 		}
 		return meshIndex;
@@ -220,15 +236,18 @@ public class VoxelRenderer {
 
 		//umschlossene Blöcke werden nicht geupdated
 		int check = 0;
+		Block nextBlock;
 		for (int i = 0; i < 6; i++) {
-			if (thisBlock.isTransparent){
+			/*if (thisBlock.isTransparent){
 				if (chunk.CheckBlock(pos + VD.dirs[i]).type < BType.Terrain) check++;
 			}
 			else {
 				if (chunk.CheckBlock(pos + VD.dirs[i]).isTransparent) check++;
-			}
+			}*/
+			nextBlock = chunk.CheckBlock(pos + VD.dirs[i]);
+			if (nextBlock.id == thisBlock.id || thisBlock.isTransparent && !nextBlock.isTransparent) check++;
 		}
-		if (check == 0) return;
+		if (check == 6) return;
 		Mesh2 mesh = Main.meshTable[thisBlock.meshID][GetMeshIndex(pos)];
 
 		if (thisBlock.slabType == 0) {

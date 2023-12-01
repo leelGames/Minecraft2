@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ffc6b11cb5a3754dad9e3eeba4773d6, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
-  saveToFile: 1
+  saveToFile: 0
   useFile: 0
   materials:
   - {fileID: 2100000, guid: b360882338460cf42ac9cdbbd209a12c, type: 2}
